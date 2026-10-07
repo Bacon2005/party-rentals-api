@@ -1,4 +1,4 @@
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 // One db for every route to import
 // prepare: false is required by the Transaction pooler
