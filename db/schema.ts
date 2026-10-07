@@ -7,7 +7,7 @@ export const profiles = pgTable(
   {
     //Column definitions
     id: uuid("id").primaryKey(),
-    email: text("email").notNull(),
+    email: text("email").notNull().default(""),
     name: text("name").notNull(),
     role: text("role").notNull().default("client"),
   },

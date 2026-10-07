@@ -15,8 +15,8 @@ export async function getProfile(request?: Request): Promise<Profile | null> {
     .getClaims(token)
     .catch(() => ({ data: null }));
   if (!data) return null;
-  const { sub: id, email = "" } = data.claims;
-  await db.insert(profiles).values({ id, email }).onConflictDoNothing();
+  const { sub: id, email = "", name = "" } = data.claims;
+  await db.insert(profiles).values({ id, email, name }).onConflictDoNothing();
   const [profile] = await db.select().from(profiles).where(eq(profiles.id, id));
   return profile;
 }
