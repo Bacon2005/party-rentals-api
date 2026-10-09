@@ -12,7 +12,7 @@ export default async function Dashboard() {
         <h1 className="text-4xl font-bold">Customers</h1>
         <form action={signOut}>
           <span className="mr-4 text-neutral-500">
-            {profile.email} · {profile.role}
+            {profile.email} · {profile.role} · {profile.name}
           </span>
           <button className="underline">Sign out</button>
         </form>

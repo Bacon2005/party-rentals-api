@@ -1,10 +1,10 @@
 import { LoginForm } from "./login-form";
-
+import Image from "next/image";
+import Logo from "@/components/assets/images/Logo.png";
 export default function LoginPage() {
   return (
-    <main className="px-16 py-8">
-      <h1 className="text-4xl font-bold">Sign in</h1>
-      <p className="mt-2 text-neutral-500">Login or create an account</p>
+    <main className="flex flex-row justify-center items-center gap-10 px-16 py-8">
+      <Image src={Logo} alt={"Logo"} width={300} height={300} />
       <LoginForm />
     </main>
   );
