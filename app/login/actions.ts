@@ -25,3 +25,7 @@ export async function authenticate(
   if (error) return { message: error.message, email };
   redirect("/dashboard");
 }
+
+export async function goToSignUp() {
+  redirect("/sign-up");
+}

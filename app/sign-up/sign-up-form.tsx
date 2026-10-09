@@ -1,19 +1,28 @@
 "use client";
 
 import { useActionState } from "react";
-import { authenticate, goToSignUp } from "./actions";
+import { signUp, goToLogin } from "./actions";
 
-export function LoginForm() {
-  const [state, action, pending] = useActionState(authenticate, {
+export type SignupState = { message: string; name: string; email: string };
+
+export function SignUpForm() {
+  const [state, action, pending] = useActionState(signUp, {
     message: "",
+    name: "",
     email: "",
   });
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-4xl font-bold">Sign in</h1>
-      <p className="mt-2 text-neutral-500">Login or create an account</p>
       <form action={action} className="mt-8 flex w-96 flex-col gap-4">
+        <input
+          name="name"
+          type="text"
+          defaultValue={state.name}
+          placeholder="Name"
+          required
+          className="border px-4 py-2"
+        />
         <input
           name="email"
           type="email"
@@ -29,21 +38,28 @@ export function LoginForm() {
           required
           className="border px-4 py-2"
         />
+        <input
+          name="confirmPassword"
+          type="password"
+          placeholder="Confirm Password"
+          required
+          className="border px-4 py-2"
+        />
         {state.message && <p className="text-red-700">{state.message}</p>}
         <button
           name="intent"
-          value="signin"
+          value="signup"
           disabled={pending}
-          className="bg-neutral-900 px-4 py-2 text-black disabled:opacity-50"
+          className="border border-neutral-900 px-4 py-2 disabled:opacity-50"
         >
-          {pending ? "Please wait" : "Login"}
+          Create a client account
         </button>
       </form>
       <button
         className="border border-neutral-900 px-4 py-2 disabled:opacity-50"
-        onClick={goToSignUp}
+        onClick={goToLogin}
       >
-        Sign Up
+        Login
       </button>
     </div>
   );
