@@ -34,7 +34,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-full flex flex-row justify-center items-center gap-6 bg-background p-6">
+      <body className="min-h-screen flex flex-row justify-center items-center gap-6 bg-background p-6">
         {/* Navigation Bar */}
         <Suspense fallback={null}>
           <AuthNav />
