@@ -1,1 +1,20 @@
 @import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-dashboard: var(--dashboard);
+  --color-dashboard-text: var(--dashboard-text);
+}
+
+/* default Theme */
+:root {
+  --background: #ffffff;
+  --dashboard: #080a22;
+  --dashboard-text: #716d78;
+}
+
+:dark {
+  --background: #000000;
+  --dashboard: #1a1c2c;
+  --dashboard-text: #c9c5d0;
+}

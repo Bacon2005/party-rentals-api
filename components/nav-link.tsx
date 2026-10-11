@@ -24,7 +24,7 @@ export default function NavLink({ href, text, children }: NavLinkProps) {
   // used to keep the underline visible on the active page.
 
   return (
-    <li className="relative font-bold w-fit list-none">
+    <li className="relative font-bold w-fit list-none text-dashboard-text">
       <Link
         href={href}
         className={`flex flex-row gap-4 items-center relative

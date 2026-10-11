@@ -23,7 +23,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="min-h-full">
-      <body className="min-h-screen flex flex-row gap-6 bg-background p-6">
+      <body className="min-h-screen flex flex-row gap-6 bg-background">
         {/* Navigation Bar */}
         <Suspense fallback={null}>
           <AuthNav />
