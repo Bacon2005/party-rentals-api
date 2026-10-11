@@ -1,19 +1,19 @@
 "use client";
 import Image from "next/image";
-import { Home, Calendar, Gpu, Mail } from "lucide-react";
+import { Home, Calendar, ChartNoAxesColumn } from "lucide-react";
 import NavLink from "@/components/nav-link";
-import Logo from "@/components/assets/images/Logo.png";
+import Logo from "@/components/assets/images/Logo-Name.png";
 
 export default function NavBar() {
   return (
     <div className="sticky top-6 flex flex-col items-center gap-8 bg-surface rounded-3xl px-4 py-6 min-w-24 shrink-0">
       {/* Profile picture */}
-      <div className="rounded-full overflow-hidden ring-2 ring-outline">
+      <div className=" overflow-hidden">
         <Image
           src={Logo}
           alt="Party Link Logo"
-          width={50}
-          height={50}
+          width={200}
+          height={200}
           className="transition-transform duration-300 ease-in-out hover:scale-110"
         />
       </div>
@@ -22,7 +22,7 @@ export default function NavBar() {
 
       {/* Nav items — using your existing NavLink, just placeholder squares as children for now */}
       <ul className="flex flex-col gap-10 items-left">
-        <NavLink href="" text="Dashboard">
+        <NavLink href="/dashboard" text="Dashboard">
           <Home size={30} />
         </NavLink>
         <NavLink href="" text="Events">
@@ -32,7 +32,7 @@ export default function NavBar() {
           <Calendar size={30} />
         </NavLink>
         <NavLink href="" text="Analytics">
-          <Mail size={30} />
+          <ChartNoAxesColumn size={30} />
         </NavLink>
       </ul>
 
