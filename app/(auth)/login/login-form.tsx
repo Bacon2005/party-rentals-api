@@ -1,7 +1,7 @@
 "use client";
-
+import Link from "next/link";
 import { useActionState } from "react";
-import { authenticate, goToSignUp } from "./actions";
+import { authenticate } from "./actions";
 
 export function LoginForm() {
   const [state, action, pending] = useActionState(authenticate, {
@@ -47,22 +47,23 @@ export function LoginForm() {
           name="intent"
           value="signin"
           disabled={pending}
-          className="bg-neutral-900 px-4 py-2 text-white disabled:opacity-50 rounded-lg hover:cursor-pointer"
+          className="bg-form-button px-4 py-2 text-white disabled:opacity-50 rounded-lg hover:cursor-pointer"
         >
           {pending ? "Please wait" : "Login"}
         </button>
       </form>
       <div className="flex items-center my-1">
-        <div className="flex-grow border-t border-gray-300" />
+        <div className="grow border-t border-gray-300" />
         <span className="mx-4 text-sm text-gray-500">or</span>
-        <div className="flex-grow border-t border-gray-300" />
+        <div className="grow border-t border-gray-300" />
       </div>
-      <button
-        className="border border-neutral-900 px-4 py-2 disabled:opacity-50 rounded-lg hover:cursor-pointer"
-        onClick={goToSignUp}
+      <Link
+        href="/sign-up"
+        scroll={false}
+        className="rounded-lg border border-neutral-900 px-4 py-2 text-center"
       >
         Sign Up
-      </button>
+      </Link>
     </div>
   );
 }
