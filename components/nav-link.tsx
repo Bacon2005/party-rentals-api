@@ -10,15 +10,13 @@ import { usePathname } from "next/navigation";
 // Hook that returns the current URL path (e.g. "/about"),
 // so we can figure out which nav item is "active".
 
-export default function NavLink({
-  href,
-  text,
-  children,
-}: {
+type NavLinkProps = {
   href: string; // the route this link points to, e.g. "/about"
   text: string | null;
   children: React.ReactNode; // whatever text/elements are passed between <NavLink> tags
-}) {
+};
+
+export default function NavLink({ href, text, children }: NavLinkProps) {
   const pathname = usePathname();
   // Gets the current page's path from the browser's URL.
   const isActive = pathname === href;
@@ -26,7 +24,7 @@ export default function NavLink({
   // used to keep the underline visible on the active page.
 
   return (
-    <li className="relative font-bold w-fit list-none">
+    <li className="relative font-bold w-fit list-none text-dashboard-text">
       <Link
         href={href}
         className={`flex flex-row gap-4 items-center relative
@@ -35,7 +33,7 @@ export default function NavLink({
                   after:origin-center after:transition-transform after:duration-300
                   after:-translate-x-1/2
                   hover:after:scale-x-100
-                  ${isActive ? "after:scale-x-100" : "after:scale-x-0"}`}
+                  ${isActive ? "text-[#6C2CF5] after:scale-x-100" : "text-current after:scale-x-0"}`}
       >
         {children}
         {text}

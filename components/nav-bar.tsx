@@ -1,28 +1,26 @@
 "use client";
 import Image from "next/image";
-import { Home, Calendar, Gpu, Mail } from "lucide-react";
+import { Home, Calendar, ChartNoAxesColumn } from "lucide-react";
 import NavLink from "@/components/nav-link";
-import Logo from "@/components/assets/images/Logo.png";
+import Logo from "@/components/assets/images/Logo-Name.png";
 
 export default function NavBar() {
   return (
-    <div className="sticky top-6 flex flex-col items-center gap-8 bg-surface rounded-3xl px-4 py-6 min-w-24 shrink-0">
+    <div className="sticky top-6 flex flex-col items-center gap-8 bg-surface px-4 py-6 min-w-24 shrink-0 bg-dashboard">
       {/* Profile picture */}
-      <div className="rounded-full overflow-hidden ring-2 ring-outline">
+      <div className=" overflow-hidden">
         <Image
           src={Logo}
           alt="Party Link Logo"
-          width={50}
-          height={50}
-          className="transition-transform duration-300 ease-in-out hover:scale-110"
+          width={200}
+          height={200}
+          className="transition-transform duration-300"
         />
       </div>
 
-      <hr className="w-8 border-outline" />
-
-      {/* Nav items — using your existing NavLink, just placeholder squares as children for now */}
+      {/* Nav items */}
       <ul className="flex flex-col gap-10 items-left">
-        <NavLink href="" text="Dashboard">
+        <NavLink href="/dashboard" text="Dashboard">
           <Home size={30} />
         </NavLink>
         <NavLink href="" text="Events">
@@ -32,14 +30,14 @@ export default function NavBar() {
           <Calendar size={30} />
         </NavLink>
         <NavLink href="" text="Analytics">
-          <Mail size={30} />
+          <ChartNoAxesColumn size={30} />
         </NavLink>
       </ul>
 
       <hr className="w-8 border-outline" />
 
       {/* Diamond placeholder — theme toggle to be designed later */}
-      <div className="w-8 h-8 rotate-45 bg-surface-2 rounded-md" />
+      <div className="w-8 h-8 rotate-45 bg-dashboard-text rounded-md" />
     </div>
   );
 }
