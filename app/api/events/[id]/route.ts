@@ -59,6 +59,9 @@ export async function PATCH(req: Request, ctx: Ctx) {
   }
 
   const d = parsed.data;
+  if (Object.values(d).every((v) => v === undefined)) {
+    return NextResponse.json({ error: "No fields to update" }, { status: 400 });
+  }
   // Drizzle skips keys that are undefined, so only sent fields are updated.
   const [row] = await db
     .update(event)

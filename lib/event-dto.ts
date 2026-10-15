@@ -30,6 +30,7 @@ export const idSchema = z.string().uuid();
 export function toEventDto(row: typeof event.$inferSelect) {
   return {
     id: row.eventId,
+    host: row.hostId,
     name: row.eventName,
     description: row.description ?? "",
     location: row.location ?? "",

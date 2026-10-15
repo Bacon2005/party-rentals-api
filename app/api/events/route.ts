@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { asc, eq, or } from "drizzle-orm";
+import { asc, eq, and, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { event } from "@/db/schema";
 import { getProfile } from "@/lib/auth";
@@ -8,16 +8,24 @@ import { createEventSchema, toEventDto } from "@/lib/event-dto";
 // GET /api/events  -> all published events + the caller's own drafts/cancelled
 export async function GET(req: Request) {
   const user = await getProfile(req);
-  if (!user) {
+  if (!user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+
+  const scope = new URL(req.url).searchParams.get("scope"); // "mine" | null
+
+  const where =
+    scope === "mine"
+      ? eq(event.hostId, user.id) // everything I host, any status
+      : and(
+          eq(event.status, "published"),
+          //ne(event.hostId, user.id),
+        );
 
   const rows = await db
     .select()
     .from(event)
-    .where(or(eq(event.status, "published"), eq(event.hostId, user.id)))
+    .where(where)
     .orderBy(asc(event.startTime));
-
   return NextResponse.json(rows.map(toEventDto));
 }
 
