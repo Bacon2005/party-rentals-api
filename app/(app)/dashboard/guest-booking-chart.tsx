@@ -78,7 +78,7 @@ export default function BookingsGuestsChart() {
       </div>
 
       {/* Loading, error, empty, or chart */}
-      <div className="h-[280px] w-full">
+      <div className="h-70 w-full">
         {isLoading ? (
           <div className="flex h-full items-center justify-center">
             <p className="text-sm text-foreground/60">Loading analytics...</p>
