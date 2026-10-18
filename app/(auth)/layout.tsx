@@ -18,7 +18,7 @@ export default function AuthLayout({
       </div>
 
       <div className="flex flex-row items-center justify-center gap-10 px-16 py-8">
-        <Image src={Logo} alt="" width={500} height={500} />
+        <Image src={Logo} alt="" width={500} height={500} loading="eager" />
         <AuthCard />
         {/* pages render nothing; they exist so the routes (and URL) exist */}
         {children}
