@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { and, eq, or } from "drizzle-orm";
+import { sql, and, eq, or } from "drizzle-orm";
 import { db } from "@/db";
-import { event } from "@/db/schema";
+import { event, eventTicket } from "@/db/schema";
 import { getProfile } from "@/lib/auth";
 import { idSchema, toEventDto, updateEventSchema } from "@/lib/event-dto";
+import { toEventTicketDto } from "@/lib/eventTicket-dto";
 
 // Next.js 15: params is a Promise. (On Next 14, use { params }: { params: { id: string } } and drop the await.)
 type Ctx = { params: Promise<{ id: string }> };
@@ -37,7 +38,18 @@ export async function GET(req: Request, ctx: Ctx) {
       ),
     );
 
-  return row ? NextResponse.json(toEventDto(row)) : notFound();
+  const tickets = await db
+    .select()
+    .from(eventTicket)
+    .where(eq(eventTicket.eventId, id))
+    .orderBy(eventTicket.ticketPrice);
+
+  return row
+    ? NextResponse.json({
+        ...toEventDto(row),
+        tickets: tickets.map(toEventTicketDto),
+      })
+    : notFound();
 }
 
 // PATCH /api/events/:id -> host only, partial update
