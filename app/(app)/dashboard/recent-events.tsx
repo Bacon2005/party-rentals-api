@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, MoreHorizontal } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
 type EventStatus = "Upcoming" | "Ongoing" | "Completed";
 
@@ -15,39 +16,56 @@ type RecentEvent = {
   imageUrl?: string;
 };
 
-// TODO: replace with real data from your API
-const events: RecentEvent[] = [
-  {
-    id: "1",
-    name: "Rooftop Vibes",
-    date: "Oct 5, 2025",
-    location: "Cebu City",
-    bookings: 128,
-    guests: 246,
-    revenue: 45600,
-    status: "Upcoming",
-  },
-  {
-    id: "2",
-    name: "Pool Party",
-    date: "Oct 12, 2025",
-    location: "Mandaue City",
-    bookings: 96,
-    guests: 180,
-    revenue: 32500,
-    status: "Ongoing",
-  },
-  {
-    id: "3",
-    name: "House Party",
-    date: "Oct 19, 2025",
-    location: "Cebu City",
-    bookings: 86,
-    guests: 162,
-    revenue: 28900,
-    status: "Upcoming",
-  },
-];
+const dateFmt = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "Asia/Manila",
+});
+
+function getStatus(start: Date, end: Date, now: Date): EventStatus {
+  if (now < start) return "Upcoming";
+  if (now > end) return "Completed";
+  return "Ongoing";
+}
+
+async function getRecentEvents(): Promise<RecentEvent[]> {
+  const supabase = await createClient(); // reads cookies, so this is request-time
+  const { data, error } = await supabase.rpc("get_recent_events", {
+    p_limit: 5,
+  });
+  if (error) throw new Error(error.message);
+
+  const now = new Date(); // safe: after the cookies() access above
+
+  return (data ?? []).map(
+    (row: {
+      start_time: string | number | Date;
+      end_time: string | number | Date;
+      event_id: any;
+      event_name: any;
+      location: any;
+      bookings: any;
+      guests: any;
+      total_earned: any;
+      image_url: any;
+    }) => {
+      const start = new Date(row.start_time);
+      const end = new Date(row.end_time);
+      return {
+        id: row.event_id,
+        name: row.event_name,
+        date: dateFmt.format(start),
+        location: row.location ?? "TBA",
+        bookings: Number(row.bookings),
+        guests: Number(row.guests),
+        revenue: row.total_earned,
+        status: getStatus(start, end, now),
+        imageUrl: row.image_url ?? undefined,
+      };
+    },
+  );
+}
 
 const statusStyles: Record<EventStatus, string> = {
   Upcoming: "bg-[#EFE7FF] text-[#6C2CF5]",
@@ -64,9 +82,10 @@ const peso = new Intl.NumberFormat("en-PH", {
 const th = "px-3 py-3 text-left text-xs font-medium text-[#6B7AA8]";
 const td = "px-3 py-3 text-sm text-foreground";
 
-export function RecentEvents() {
+export async function RecentEvents() {
+  const events = await getRecentEvents();
   return (
-    <section className="w-full min-w-0 rounded-xl border border-border bg-background p-5">
+    <section className="w-full min-w-0 rounded-xl border border-border-color bg-background p-5">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-bold text-foreground">Recent Events</h2>
         <Link
@@ -93,10 +112,20 @@ export function RecentEvents() {
           </thead>
 
           <tbody>
+            {events.length === 0 && (
+              <tr>
+                <td
+                  colSpan={8}
+                  className={`${td} py-8 text-center text-[#6B7AA8]`}
+                >
+                  No events yet.
+                </td>
+              </tr>
+            )}
             {events.map((event) => (
               <tr
                 key={event.id}
-                className="border-b border-border last:border-0"
+                className="border-b border-border-color last:border-0"
               >
                 <td className={td}>
                   <div className="flex items-center gap-3">

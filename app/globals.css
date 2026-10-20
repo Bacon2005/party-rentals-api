@@ -5,6 +5,7 @@
   --color-dashboard: var(--dashboard);
   --color-dashboard-text: var(--dashboard-text);
   --color-form-button: var(--form-button);
+  --color-border-color: var(--border-color);
 }
 
 /* default Theme */
@@ -13,6 +14,7 @@
   --dashboard: #080a22;
   --dashboard-text: #716d78;
   --form-button: #6c2cf5;
+  --border-color: #e1e7f2;
 }
 
 /* :dark {
