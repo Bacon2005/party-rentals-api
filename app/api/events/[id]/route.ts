@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { sql, and, eq, or } from "drizzle-orm";
 import { db } from "@/db";
-import { event, eventTicket } from "@/db/schema";
+import { event, eventTicket, eventTable } from "@/db/schema";
 import { getProfile } from "@/lib/auth";
 import { idSchema, toEventDto, updateEventSchema } from "@/lib/event-dto";
 import { toEventTicketDto } from "@/lib/eventTicket-dto";
+import { toEventTableDto } from "@/lib/eventTable-dto";
 
 // Next.js 15: params is a Promise. (On Next 14, use { params }: { params: { id: string } } and drop the await.)
 type Ctx = { params: Promise<{ id: string }> };
@@ -38,18 +39,24 @@ export async function GET(req: Request, ctx: Ctx) {
       ),
     );
 
-  const tickets = await db
-    .select()
-    .from(eventTicket)
-    .where(eq(eventTicket.eventId, id))
-    .orderBy(eventTicket.ticketPrice);
+  const [tickets, tables] = await Promise.all([
+    db
+      .select()
+      .from(eventTicket)
+      .where(eq(eventTicket.eventId, id))
+      .orderBy(eventTicket.ticketPrice),
+    db
+      .select()
+      .from(eventTable)
+      .where(eq(eventTable.eventId, id))
+      .orderBy(eventTable.label),
+  ]);
 
-  return row
-    ? NextResponse.json({
-        ...toEventDto(row),
-        tickets: tickets.map(toEventTicketDto),
-      })
-    : notFound();
+  return NextResponse.json({
+    ...toEventDto(row),
+    tickets: tickets.map(toEventTicketDto),
+    tables: tables.map(toEventTableDto),
+  });
 }
 
 // PATCH /api/events/:id -> host only, partial update
