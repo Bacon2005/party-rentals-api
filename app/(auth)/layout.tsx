@@ -4,8 +4,10 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { connection } from "next/server";
 
 async function RedirectIfLoggedIn() {
+  await connection();
   const supabase = await createClient();
   const {
     data: { user },
