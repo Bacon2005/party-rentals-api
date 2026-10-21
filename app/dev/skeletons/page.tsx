@@ -1,6 +1,6 @@
 // app/dev/skeletons/page.tsx
 import { notFound } from "next/navigation";
-import { RecentEventSkeleton } from "@/components/Skeletons";
+import { RecentEventSkeleton, TopBarSkeleton } from "@/components/Skeletons";
 
 export default function Page() {
   if (process.env.NODE_ENV === "production") notFound(); // dev only
@@ -10,6 +10,10 @@ export default function Page() {
       <section>
         <h2 className="text-sm text-neutral-500">RecentEventSkeleton</h2>
         <RecentEventSkeleton />
+      </section>
+      <section>
+        <h2 className="text-sm text-neutral-500">TopBarSkeleton</h2>
+        <TopBarSkeleton />
       </section>
     </div>
   );

@@ -21,3 +21,11 @@ export function RecentEventSkeleton() {
     </div>
   );
 }
+
+export function TopBarSkeleton() {
+  return (
+    <div className="flex justify-end w-full">
+      <div className={`h-8 w-50 ${BAR}`}></div>
+    </div>
+  );
+}

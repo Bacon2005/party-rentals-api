@@ -3,7 +3,7 @@ import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 type SummaryBoxProps = {
   title: string;
-  stat: string;
+  stat: number | string;
   /** Percentage change vs. previous period. Positive = up, negative = down. */
   change: number;
   /** Tailwind classes for the icon tile background, e.g. "bg-[#FFEAF5]" */
