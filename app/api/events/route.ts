@@ -58,6 +58,7 @@ export async function POST(req: Request) {
       startTime: new Date(d.startTime),
       endTime: new Date(d.endTime),
       status: d.status,
+      map: d.mapUrl ?? null,
     })
     .returning();
 

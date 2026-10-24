@@ -15,7 +15,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 // ---------------------------------------------------------------------
-// PROFILES (your existing table, unchanged)
+// PROFILES
 // ---------------------------------------------------------------------
 export const profiles = pgTable(
   "profiles",

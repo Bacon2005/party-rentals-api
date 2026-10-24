@@ -85,6 +85,7 @@ export async function PATCH(req: Request, ctx: Ctx) {
       startTime: d.startTime ? new Date(d.startTime) : undefined,
       endTime: d.endTime ? new Date(d.endTime) : undefined,
       status: d.status,
+      map: d.mapUrl,
     })
     .where(and(eq(event.eventId, id), eq(event.hostId, user.id)))
     .returning();

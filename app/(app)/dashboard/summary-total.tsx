@@ -1,13 +1,6 @@
 import { Calendar, Ticket, Users, PhilippinePeso } from "lucide-react";
 import { SummaryBox } from "./summary-box";
-
-// TODO: replace with real data from your API
-const summary = {
-  events: { total: 12, change: 20 },
-  bookings: { total: 548, change: 32 },
-  guests: { total: 1024, change: 28 },
-  revenue: { total: 158420, change: 35 },
-};
+import { connection } from "next/server";
 
 import { verifyUser } from "@/lib/auth";
 import { getTotalEvents, getTotalRevenue } from "@/lib/dashboard";
@@ -20,6 +13,7 @@ const peso = new Intl.NumberFormat("en-PH", {
 });
 
 export async function SummaryTotal() {
+  await connection();
   const profile = await verifyUser();
   // const totalEvents = await getTotalEvents(profile.id);
   // const totalRevenue = await getTotalRevenue(profile.id);
@@ -34,7 +28,7 @@ export async function SummaryTotal() {
       <SummaryBox
         title="Total Events"
         stat={events}
-        change={summary.events.change}
+        change={0}
         iconBg="bg-[#FFEAF5]"
         iconColor="text-[#FF4DA6]"
       >
@@ -44,7 +38,7 @@ export async function SummaryTotal() {
       <SummaryBox
         title="Total Bookings"
         stat={stats.bookings}
-        change={summary.bookings.change}
+        change={0}
         iconBg="bg-[#EDE3FF]"
         iconColor="text-[#6C2CF5]"
       >
@@ -54,7 +48,7 @@ export async function SummaryTotal() {
       <SummaryBox
         title="Total Guests"
         stat={stats.guests}
-        change={summary.guests.change}
+        change={0}
         iconBg="bg-[#E3F2FF]"
         iconColor="text-[#2F95F5]"
       >
@@ -64,7 +58,7 @@ export async function SummaryTotal() {
       <SummaryBox
         title="Total Revenue"
         stat={peso.format(revenue)}
-        change={summary.revenue.change}
+        change={0}
         iconBg="bg-[#FFF0E0]"
         iconColor="text-[#F59E0B]"
       >
