@@ -2,14 +2,16 @@ import { Suspense } from "react";
 import { Bell } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { connection } from "next/server";
+import { verifyUser } from "@/lib/auth";
+import { TopBarSkeleton } from "@/components/Skeletons";
 
 async function UserMenu() {
   await connection();
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const name = user?.user_metadata?.name ?? user?.email ?? "";
+
+  const profile = await verifyUser();
+  const name = profile.name || profile.email;
+  const role = profile.role ?? "User";
 
   return (
     <div className="flex items-center gap-3">
@@ -18,7 +20,7 @@ async function UserMenu() {
       </div>
       <div className="text-sm leading-tight">
         <p className="font-semibold">{name}</p>
-        <p className="text-neutral-500">Host</p>
+        <p className="text-neutral-500">{role}</p>
       </div>
     </div>
   );
@@ -32,7 +34,7 @@ export function Header() {
         <Bell className="size-5" />
         <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-red-500" />
       </button>
-      <Suspense fallback={<div className="h-10 w-40" />}>
+      <Suspense fallback={<TopBarSkeleton />}>
         <UserMenu />
       </Suspense>
     </header>
