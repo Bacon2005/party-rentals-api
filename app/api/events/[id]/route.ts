@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { sql, and, eq, or } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { db } from "@/db";
 import { event, eventTicket } from "@/db/schema";
 import { getProfile } from "@/lib/auth";
@@ -86,6 +86,7 @@ export async function PATCH(req: Request, ctx: Ctx) {
       endTime: d.endTime ? new Date(d.endTime) : undefined,
       status: d.status,
       map: d.mapUrl,
+      paymentQrUrl: d.paymentQrUrl,
     })
     .where(and(eq(event.eventId, id), eq(event.hostId, user.id)))
     .returning();

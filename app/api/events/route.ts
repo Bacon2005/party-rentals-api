@@ -16,10 +16,7 @@ export async function GET(req: Request) {
   const where =
     scope === "mine"
       ? eq(event.hostId, user.id) // everything I host, any status
-      : and(
-          eq(event.status, "published"),
-          //ne(event.hostId, user.id),
-        );
+      : and(eq(event.status, "published"));
 
   const rows = await db
     .select()
@@ -59,6 +56,7 @@ export async function POST(req: Request) {
       endTime: new Date(d.endTime),
       status: d.status,
       map: d.mapUrl ?? null,
+      paymentQrUrl: d.paymentQrUrl ?? null,
     })
     .returning();
 

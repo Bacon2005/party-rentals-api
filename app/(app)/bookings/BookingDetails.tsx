@@ -74,7 +74,7 @@ export default function BookingDetails({
             <span className="text-sm font-bold text-slate-900 dark:text-white">
               {b.name}
             </span>
-            <StatusBadge status={b.status} className="!px-2 !py-1" />
+            <StatusBadge status={b.status} className="px-2 py-1" />
           </div>
           <p className="mt-1 text-[11px] leading-snug text-slate-500">
             {b.email}
@@ -120,7 +120,7 @@ export default function BookingDetails({
           <Ticket size={ic} />
           Booking ID
         </span>
-        <span className="flex min-w-[120px] items-center justify-between rounded-md bg-slate-100 px-2.5 py-2 font-medium text-slate-900 dark:bg-slate-800 dark:text-slate-100">
+        <span className="flex min-w-30 items-center justify-between rounded-md bg-slate-100 px-2.5 py-2 font-medium text-slate-900 dark:bg-slate-800 dark:text-slate-100">
           #{b.id}
           <button
             aria-label="Copy booking ID"
