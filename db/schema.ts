@@ -54,6 +54,7 @@ export const event = pgTable(
       .defaultNow(),
     totalEarned: doublePrecision("total_earned").notNull().default(0),
     paymentQrUrl: varchar("payment_qr_url"),
+    eventImage: varchar("eventImage"),
     gcashAccountName: varchar("gcash_account_name"),
     status: text("status").notNull().default("draft"),
   },

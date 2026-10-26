@@ -87,6 +87,7 @@ export async function PATCH(req: Request, ctx: Ctx) {
       status: d.status,
       map: d.mapUrl,
       paymentQrUrl: d.paymentQrUrl,
+      eventImage: d.eventImageUrl,
     })
     .where(and(eq(event.eventId, id), eq(event.hostId, user.id)))
     .returning();
