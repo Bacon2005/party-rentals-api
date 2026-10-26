@@ -56,7 +56,7 @@ export default function BookingsGuestsChart() {
   }, [range]);
 
   return (
-    <section className="w-full min-w-0 rounded-xl border border-border bg-background p-5">
+    <section className="w-full min-w-0 rounded-xl border border-border-color bg-background p-5">
       {/* Header */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-xl font-bold text-foreground">
@@ -68,7 +68,7 @@ export default function BookingsGuestsChart() {
           onChange={(event) =>
             setRange(Number(event.target.value) as AnalyticsRange)
           }
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary"
+          className="rounded-lg border border-border-color bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary"
           aria-label="Select chart date range"
         >
           <option value={12}>Last 12 Months</option>

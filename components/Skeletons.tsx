@@ -29,3 +29,20 @@ export function TopBarSkeleton() {
     </div>
   );
 }
+
+export function SummaryTotalSkeleton() {
+  return (
+    <div className="flex flex-row justify-between">
+      {[0, 1, 2, 3].map((col) => (
+        <div key={col} className="flex w-full gap-3">
+          <div className={`h-20 w-20 ${BAR}`} />
+          <div className="flex flex-col gap-3">
+            <div className={`h-5 w-20 ${BAR}`} />
+            <div className={`h-5 w-10 ${BAR}`} />
+            <div className={`h-5 w-48 ${BAR}`} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

@@ -1,11 +1,12 @@
 import { z } from "zod";
 import type { eventTicket } from "@/db/schema"; // adjust path
 
+// Restricts optional ticket sale dates to the calendar-date format used by the API.
 const dateString = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD format");
 
-// Incoming data when creating a ticket (POST body)
+// Validates ticket creation requests before they are used to create a database row.
 export const createEventTicketSchema = z
   .object({
     eventId: z.string().uuid("eventId must be a valid UUID"),
@@ -19,9 +20,10 @@ export const createEventTicketSchema = z
     path: ["salesEnd"],
   });
 
+// Keeps the TypeScript request type aligned with the runtime validation schema.
 export type CreateEventTicketDto = z.infer<typeof createEventTicketSchema>;
 
-// Outgoing shape sent to the client
+// Defines the stable ticket response shape, independent of database column types.
 export interface EventTicketDto {
   ticketId: string;
   eventId: string;
@@ -31,7 +33,7 @@ export interface EventTicketDto {
   salesEnd: string | null;
 }
 
-// Drizzle returns numeric columns as strings, so convert to a number here
+// Maps a database row to the client response shape and converts numeric price strings to numbers.
 export function toEventTicketDto(
   row: typeof eventTicket.$inferSelect,
 ): EventTicketDto {

@@ -2,11 +2,12 @@ import { SummaryTotal } from "./summary-total";
 import BookingsGuestsChart from "./guest-booking-chart";
 import { RecentEvents } from "./recent-events";
 import { Suspense } from "react";
-import { RecentEventSkeleton } from "@/components/Skeletons";
+import {
+  RecentEventSkeleton,
+  SummaryTotalSkeleton,
+} from "@/components/Skeletons";
 
 export default async function Dashboard() {
-  // const profile = await verifyUser();
-
   return (
     <div className="w-full min-w-0 pr-6 pb-8">
       <div className="mt-4 flex flex-col gap-1">
@@ -17,7 +18,9 @@ export default async function Dashboard() {
       </div>
 
       <div className="mt-6 flex flex-col gap-6">
-        <SummaryTotal />
+        <Suspense fallback={<SummaryTotalSkeleton />}>
+          <SummaryTotal />
+        </Suspense>
         <BookingsGuestsChart />
         <Suspense fallback={<RecentEventSkeleton />}>
           <RecentEvents />

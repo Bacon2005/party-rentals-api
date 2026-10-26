@@ -25,7 +25,7 @@ export function SummaryBox({
   const TrendIcon = isUp ? ArrowUpRight : ArrowDownRight;
 
   return (
-    <div className="flex min-w-0 flex-1 items-center gap-4 rounded-xl border border-border bg-background p-4">
+    <div className="flex min-w-0 flex-1 items-center gap-4 rounded-xl border border-border-color bg-background p-4">
       <div
         className={`flex h-15 w-15 shrink-0 items-center justify-center rounded-xl ${iconBg} ${iconColor}`}
       >

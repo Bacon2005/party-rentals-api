@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, MoreHorizontal } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { connection } from "next/server";
 
 type EventStatus = "Upcoming" | "Ongoing" | "Completed";
 
@@ -83,6 +84,7 @@ const th = "px-3 py-3 text-left text-xs font-medium text-[#6B7AA8]";
 const td = "px-3 py-3 text-sm text-foreground";
 
 export async function RecentEvents() {
+  await connection();
   const events = await getRecentEvents();
   return (
     <section className="w-full min-w-0 rounded-xl border border-border-color bg-background p-5">
