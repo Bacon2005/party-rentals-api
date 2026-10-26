@@ -57,6 +57,7 @@ export async function POST(req: Request) {
       status: d.status,
       map: d.mapUrl ?? null,
       paymentQrUrl: d.paymentQrUrl ?? null,
+      eventImage: d.eventImageUrl ?? null,
     })
     .returning();
 

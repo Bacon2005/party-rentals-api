@@ -3,6 +3,7 @@ import type { event } from "@/db/schema";
 
 const IMAGE_PREFIX = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/event-images/`;
 const QR_IMAGE_PREFIX = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/hostQR/`;
+const EVENT_IMAGE_PREFIX = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/event-graphics/`;
 
 // Shared field rules keep create and update requests consistent with the event API.
 const baseEvent = z.object({
@@ -23,6 +24,12 @@ const baseEvent = z.object({
     .string()
     .url()
     .refine((u) => u.startsWith(QR_IMAGE_PREFIX), "Invalid image URL")
+    .nullable()
+    .optional(),
+  eventImageUrl: z
+    .string()
+    .url()
+    .refine((u) => u.startsWith(EVENT_IMAGE_PREFIX), "Invalid image URL")
     .nullable()
     .optional(),
 });
@@ -62,5 +69,6 @@ export function toEventDto(row: typeof event.$inferSelect) {
     status: row.status,
     mapUrl: row.map,
     paymentQrUrl: row.paymentQrUrl,
+    eventImageUrl: row.eventImage,
   };
 }
