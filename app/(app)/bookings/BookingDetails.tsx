@@ -3,7 +3,7 @@ import {
   CreditCard,
   Copy,
   Mail,
-  Pencil,
+  Banknote,
   Ticket,
   Trash2,
   Users,
@@ -127,7 +127,7 @@ export default function BookingDetails({
           onClick={() => onEdit?.(b)}
           className="flex items-center justify-center gap-2 rounded-lg bg-violet-600 py-2.5 text-xs font-semibold text-white hover:bg-violet-700"
         >
-          <Pencil size={14} /> See Payment
+          <Banknote size={14} /> See Payment
         </button>
         <button
           onClick={() => onSendConfirmation?.(b)}
