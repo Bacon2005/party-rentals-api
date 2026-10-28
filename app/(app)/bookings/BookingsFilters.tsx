@@ -57,12 +57,12 @@ export default function BookingFilters({
             events.
           </p>
         </div>
-        <button
+        {/* <button
           onClick={onAdd}
           className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-700"
         >
           <Plus size={16} /> Add Booking
-        </button>
+        </button> */}
       </div>
 
       <div className="mt-4 flex flex-wrap items-end gap-3.5">
