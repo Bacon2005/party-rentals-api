@@ -1,56 +1,59 @@
-import type { Booking } from "./types";
+import { eq, sql } from "drizzle-orm";
+import { db } from "@/db";
+import {
+  reservation,
+  reservationItem,
+  paymentProof,
+  eventTicket,
+  eventTable,
+  event,
+  profiles,
+} from "@/db/schema";
 
-// TODO Replace with your API data.
-export const MOCK_BOOKINGS: Booking[] = [
-  {
-    id: "BK1001",
-    name: "John Reyes",
-    email: "john.reyes@gmail.com",
-    phone: "+63 917 123 4567",
-    event: "Rooftop Vibes",
-    eventDate: "Oct 5, 2025",
-    eventTime: "7:30 PM",
-    type: "VIP Ticket",
-    kind: "vip",
-    guests: 1,
-    amount: 1500,
-    bookingDate: "Oct 3, 2025",
-    bookingTime: "10:24 AM",
-    status: "Confirmed",
-    paymentMethod: "GCash",
-  },
-  {
-    id: "BK1002",
-    name: "Maria Santos",
-    email: "maria.s@gmail.com",
-    phone: "+63 918 555 0142",
-    event: "Rooftop Vibes",
-    eventDate: "Oct 5, 2025",
-    eventTime: "7:30 PM",
-    type: "Table (4)",
-    kind: "table",
-    guests: 1,
-    amount: 1500,
-    bookingDate: "Oct 2, 2025",
-    bookingTime: "2:15 PM",
-    status: "Confirmed",
-    paymentMethod: "Credit Card",
-  },
-  {
-    id: "BK1003",
-    name: "Carlos Dela Cruz",
-    email: "carlos.dc@gmail.com",
-    phone: "+63 927 880 3321",
-    event: "House Party",
-    eventDate: "Oct 19, 2025",
-    eventTime: "9:00 PM",
-    type: "General Admission",
-    kind: "general",
-    guests: 1,
-    amount: 1200,
-    bookingDate: "Oct 1, 2025",
-    bookingTime: "6:42 PM",
-    status: "Pending",
-    paymentMethod: "Maya",
-  },
-];
+export async function getReservations(hostId: string) {
+  const result = await db
+    .select({
+      reservationId: reservation.reservationId,
+      guestName: profiles.name,
+      email: profiles.email,
+      status: reservation.status,
+      bookingDate: reservation.reservedAt,
+
+      eventName: event.eventName,
+
+      bookingType: sql<string>`
+        COALESCE(
+          ${eventTicket.name},
+          ${eventTable.label}
+        )
+      `,
+
+      amount: reservationItem.unitPrice,
+      paymentReference: paymentProof.referenceNum,
+      screenshotUrl: paymentProof.screenshotUrl,
+      paymentStatus: paymentProof.status,
+      paidAt: paymentProof.paidAt,
+    })
+    .from(reservation)
+    .innerJoin(profiles, eq(reservation.attendeeId, profiles.id))
+    .innerJoin(
+      reservationItem,
+      eq(reservation.reservationId, reservationItem.reservationId),
+    )
+    .leftJoin(
+      paymentProof,
+      eq(reservationItem.reservationItemId, paymentProof.reservationItemId),
+    )
+    .leftJoin(eventTicket, eq(reservationItem.ticketId, eventTicket.ticketId))
+    .leftJoin(eventTable, eq(reservationItem.tableId, eventTable.tableId))
+    .innerJoin(
+      event,
+      sql`COALESCE(
+        ${eventTicket.eventId},
+        ${eventTable.eventId}
+      ) = ${event.eventId}`,
+    )
+    .where(eq(event.hostId, hostId));
+
+  return result;
+}

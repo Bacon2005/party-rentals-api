@@ -1,4 +1,3 @@
-//TODO DELETE WHEN YOU HAVE ACTUAL DATA
 export type BookingStatus = "Confirmed" | "Pending" | "Cancelled";
 export type BookingKind = "vip" | "table" | "general";
 
