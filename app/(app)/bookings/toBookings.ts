@@ -55,6 +55,7 @@ export function toBookings(rows: Row[]): Booking[] {
       kind: toKind(type),
       guests: 1,
       amount: Number(r.amount ?? 0),
+      screenshotUrl: r.screenshotUrl,
       bookingDate: fmtDate(r.bookingDate),
       bookingTime: fmtTime(r.bookingDate),
       status: toStatus(r.status),

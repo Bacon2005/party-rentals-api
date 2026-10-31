@@ -13,6 +13,7 @@ export interface Booking {
   kind: BookingKind;
   guests: number;
   amount: number;
+  screenshotUrl: string | null;
   bookingDate: string;
   bookingTime: string;
   status: BookingStatus;
