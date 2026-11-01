@@ -62,6 +62,7 @@ export function toEventDto(row: typeof event.$inferSelect) {
     host: row.hostId,
     name: row.eventName,
     description: row.description ?? "",
+    totalEarned: row.totalEarned ?? 0,
     location: row.location ?? "",
     capacity: row.capacity ?? 0,
     startTime: row.startTime.toISOString(),

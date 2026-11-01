@@ -8,6 +8,7 @@ import {
   reservation,
   reservationItem,
 } from "@/db/schema";
+import { toEventDto } from "./event-dto";
 
 export async function getBookingStats(hostId: string) {
   const [result] = await db
@@ -32,4 +33,9 @@ export async function getBookingStats(hostId: string) {
     .where(and(eq(event.hostId, hostId), eq(reservation.status, "Confirmed")));
 
   return result;
+}
+
+export async function getHostEvents(hostId: string) {
+  const rows = await db.select().from(event).where(eq(event.hostId, hostId));
+  return rows.map(toEventDto);
 }
