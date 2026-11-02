@@ -106,7 +106,7 @@ export default function BookingFilters({
           <option value="">All Statuses</option>
           <option>Confirmed</option>
           <option>Pending</option>
-          <option>Cancelled</option>
+          <option>Denied</option>
         </Select>
         <label className="flex flex-col gap-1 text-xs text-slate-500 dark:text-slate-400">
           Date Range

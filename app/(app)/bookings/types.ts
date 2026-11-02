@@ -1,8 +1,9 @@
-export type BookingStatus = "Confirmed" | "Pending" | "Cancelled";
+export type BookingStatus = "Confirmed" | "Pending" | "Denied";
 export type BookingKind = "vip" | "table" | "general";
 
 export interface Booking {
   id: string;
+  reservationId: string;
   name: string;
   email: string;
   phone: string;

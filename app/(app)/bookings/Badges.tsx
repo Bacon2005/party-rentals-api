@@ -12,9 +12,8 @@ const kindStyles: Record<BookingKind, string> = {
 const statusStyles: Record<BookingStatus, string> = {
   Confirmed: "bg-green-100 text-green-700",
   Pending: "bg-orange-100 text-orange-700 ",
-  Cancelled: "bg-red-100 text-red-700 ",
+  Denied: "bg-red-100 text-red-700 ",
 };
-
 export function TypeBadge({
   kind,
   label,

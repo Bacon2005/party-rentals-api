@@ -28,9 +28,8 @@ const fmtTime = (d: Date | string | null) =>
 
 function toStatus(s: string | null): BookingStatus {
   const v = (s ?? "").toLowerCase();
-  if (v.startsWith("confirm") || v === "paid" || v === "approved")
-    return "Confirmed";
-  if (v.startsWith("cancel") || v === "rejected") return "Cancelled";
+  if (v === "confirmed") return "Confirmed";
+  if (v === "denied") return "Denied";
   return "Pending";
 }
 
@@ -47,6 +46,7 @@ export function toBookings(rows: Row[]): Booking[] {
     return {
       // reservationId can repeat if a reservation has several items
       id: `${r.reservationId}-${i}`,
+      reservationId: r.reservationId,
       name: r.guestName ?? "Unknown",
       email: r.email ?? "",
       phone: "—",

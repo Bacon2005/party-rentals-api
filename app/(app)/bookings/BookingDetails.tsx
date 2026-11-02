@@ -18,6 +18,7 @@ import { StatusBadge } from "./Badges";
 
 interface Props {
   booking: Booking;
+  busy?: boolean;
   onClose: () => void;
   onSendConfirmation?: (b: Booking) => void;
   onCancel?: (b: Booking) => void;
@@ -45,11 +46,13 @@ function Row({
 
 export default function BookingDetails({
   booking: b,
+  busy = false,
   onClose,
   onSendConfirmation,
   onCancel,
 }: Props) {
   const ic = 14;
+  const locked = busy || b.status !== "Pending";
   const [paymentOpen, setPaymentOpen] = useState(false);
 
   useEffect(() => {
@@ -147,15 +150,17 @@ export default function BookingDetails({
           </button>
           <button
             onClick={() => onSendConfirmation?.(b)}
-            className="flex items-center justify-center gap-2 rounded-lg border border-violet-500 bg-violet-50 py-2.5 text-xs font-semibold text-violet-600 hover:bg-violet-100 dark:bg-violet-500/10 dark:hover:bg-violet-500/20"
+            disabled={locked}
+            className="flex items-center justify-center gap-2 rounded-lg border border-violet-500 bg-violet-50 py-2.5 text-xs font-semibold text-violet-600 hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Mail size={14} /> Send Confirmation
+            <Mail size={14} /> {busy ? "Sending..." : "Send Confirmation"}
           </button>
           <button
             onClick={() => onCancel?.(b)}
-            className="flex items-center justify-center gap-2 rounded-lg border border-red-500 bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20"
+            disabled={locked}
+            className="flex items-center justify-center gap-2 rounded-lg border border-red-500 bg-red-50 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Trash2 size={14} /> Cancel Booking
+            <Trash2 size={14} /> Deny Booking
           </button>
         </div>
       </aside>

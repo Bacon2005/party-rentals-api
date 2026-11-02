@@ -1,5 +1,6 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { decideReservation } from "./actions";
 import type { Booking, BookingFilterState } from "./types";
 import BookingFilters from "./BookingsFilters";
 import BookingsTable from "./BookingsTable";
@@ -47,6 +48,24 @@ export default function BookingsPage({ bookings }: { bookings: Booking[] }) {
 
   const selected = filtered.find((b) => b.id === selectedId);
 
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  function decide(b: Booking, decision: "Confirmed" | "Denied") {
+    const verb = decision === "Confirmed" ? "confirm" : "deny";
+    if (
+      !window.confirm(
+        `Are you sure you want to ${verb} this reservation? This can't be undone.`,
+      )
+    )
+      return;
+    setError(null);
+    startTransition(async () => {
+      const res = await decideReservation(b.reservationId, decision);
+      if (!res.ok) setError(res.error ?? "Something went wrong.");
+    });
+  }
+
   return (
     <div className="space-y-4">
       <BookingFilters
@@ -84,10 +103,16 @@ export default function BookingsPage({ bookings }: { bookings: Booking[] }) {
         </section>
 
         {selected && (
-          <BookingDetails
-            booking={selected}
-            onClose={() => setSelectedId(undefined)}
-          />
+          <div className="space-y-2">
+            <BookingDetails
+              booking={selected}
+              busy={isPending}
+              onClose={() => setSelectedId(undefined)}
+              onSendConfirmation={(b) => decide(b, "Confirmed")}
+              onCancel={(b) => decide(b, "Denied")}
+            />
+            {error && <p className="text-xs text-red-600">{error}</p>}
+          </div>
         )}
       </div>
     </div>
