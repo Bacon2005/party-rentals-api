@@ -46,3 +46,7 @@ export function SummaryTotalSkeleton() {
     </div>
   );
 }
+
+export function BookingsSkeleton() {
+  return <div className={`h-8 w-50 ${BAR}`}></div>;
+}

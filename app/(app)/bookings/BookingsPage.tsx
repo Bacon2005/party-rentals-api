@@ -17,15 +17,21 @@ export default function BookingsPage({ bookings }: { bookings: Booking[] }) {
   );
 
   const events = useMemo(
+    // Build a list of unique event names. React reuses this list
+    // until the bookings array changes.
     () => [...new Set(bookings.map((b) => b.event))],
     [bookings],
   );
   const types = useMemo(
+    // Build a list of unique booking types. React reuses this list
+    // until the bookings array changes.
     () => [...new Set(bookings.map((b) => b.type))],
     [bookings],
   );
 
   const filtered = useMemo(() => {
+    // Filter bookings using the current search text and selected filters.
+    // React recalculates this list when bookings or filters change.
     const q = filters.search.toLowerCase();
     return bookings.filter(
       (b) =>

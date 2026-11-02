@@ -1,6 +1,8 @@
 import type { getReservations } from "./data";
 import type { Booking, BookingKind, BookingStatus } from "./types";
 
+// toBookings.ts formats dates for Manila time, converts status and booking type into UI values,
+// and fills in defaults for data it doesn’t have.
 type Row = Awaited<ReturnType<typeof getReservations>>[number];
 
 const TZ = "Asia/Manila";
