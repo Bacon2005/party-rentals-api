@@ -1,9 +1,9 @@
-//TODO DELETE WHEN YOU HAVE ACTUAL DATA
-export type BookingStatus = "Confirmed" | "Pending" | "Cancelled";
+export type BookingStatus = "Confirmed" | "Pending" | "Denied";
 export type BookingKind = "vip" | "table" | "general";
 
 export interface Booking {
   id: string;
+  reservationId: string;
   name: string;
   email: string;
   phone: string;
@@ -14,6 +14,7 @@ export interface Booking {
   kind: BookingKind;
   guests: number;
   amount: number;
+  screenshotUrl: string | null;
   bookingDate: string;
   bookingTime: string;
   status: BookingStatus;

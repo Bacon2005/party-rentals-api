@@ -4,6 +4,7 @@ import {
   RecentEventSkeleton,
   TopBarSkeleton,
   SummaryTotalSkeleton,
+  BookingsSkeleton,
 } from "@/components/Skeletons";
 
 export default function Page() {
@@ -22,6 +23,10 @@ export default function Page() {
       <section>
         <h2 className="text-sm text-neutral-500">SummaryTotalSkeleton</h2>
         <SummaryTotalSkeleton />
+      </section>
+      <section>
+        <h2 className="text-sm text-neutral-500">Booking Page Skeleton</h2>
+        <BookingsSkeleton />
       </section>
     </div>
   );

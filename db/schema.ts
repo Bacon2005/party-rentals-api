@@ -24,6 +24,9 @@ export const profiles = pgTable(
     email: text("email").notNull().default(""),
     name: text("name").notNull(),
     role: text("role").notNull().default("client"),
+    phone: text("phone"),
+    hostName: text("host_name"),
+    avatarUrl: text("avatar_url"),
   },
   (table) => [
     uniqueIndex("profiles_one_admin")
@@ -83,6 +86,7 @@ export const eventTable = pgTable(
     tablePrice: numeric("table_price", { precision: 10, scale: 2 }).notNull(),
     status: text("status").notNull().default("Available"),
     capacity: integer("capacity"),
+    guests: varchar("guests"), // comma-separated list of guest names
   },
   (table) => [
     index("idx_event_table_event_id").on(table.eventId),
@@ -204,4 +208,22 @@ export const paymentProof = pgTable(
       sql`${table.status} in ('pending', 'succeeded', 'failed')`,
     ),
   ],
+).enableRLS();
+
+// ---------------------------------------------------------------------
+// DEVICE TOKEN (one row per phone, used for push notifications)
+// ---------------------------------------------------------------------
+export const deviceToken = pgTable(
+  "device_token",
+  {
+    deviceTokenId: uuid("device_token_id").primaryKey().defaultRandom(),
+    profileId: uuid("profile_id")
+      .notNull()
+      .references(() => profiles.id, { onDelete: "cascade" }),
+    token: text("token").notNull().unique(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [index("idx_device_token_profile_id").on(table.profileId)],
 ).enableRLS();

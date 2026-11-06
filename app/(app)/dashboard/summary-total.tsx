@@ -15,8 +15,6 @@ const peso = new Intl.NumberFormat("en-PH", {
 export async function SummaryTotal() {
   await connection();
   const profile = await verifyUser();
-  // const totalEvents = await getTotalEvents(profile.id);
-  // const totalRevenue = await getTotalRevenue(profile.id);
 
   const [events, revenue, stats] = await Promise.all([
     getTotalEvents(profile.id),
