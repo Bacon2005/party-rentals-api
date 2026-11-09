@@ -24,6 +24,9 @@ export const profiles = pgTable(
     email: text("email").notNull().default(""),
     name: text("name").notNull(),
     role: text("role").notNull().default("client"),
+    phone: text("phone"),
+    hostName: text("host_name"),
+    avatarUrl: text("avatar_url"),
   },
   (table) => [
     uniqueIndex("profiles_one_admin")
