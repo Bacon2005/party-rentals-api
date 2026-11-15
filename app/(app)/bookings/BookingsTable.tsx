@@ -1,6 +1,8 @@
 import { MoreHorizontal } from "lucide-react";
 import type { Booking } from "./types";
 import { StatusBadge, TypeBadge } from "./Badges";
+import Image from "next/image";
+import noProfile from "@/components/assets/images/no-profile.jpg";
 
 interface Props {
   bookings: Booking[];
@@ -62,7 +64,25 @@ export default function BookingsTable({
               >
                 <td className={td}>
                   <div className="flex items-center gap-2.5">
-                    <span className="h-6 w-6 shrink-0 rounded-full bg-slate-300" />
+                    <div className="h-10 w-10 shrink-0 rounded-full bg-slate-300">
+                      {b.profileUrl ? (
+                        <Image
+                          src={b.profileUrl}
+                          width={96}
+                          height={96}
+                          alt={b.name}
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <Image
+                          src={noProfile}
+                          width={96}
+                          height={96}
+                          alt={b.name}
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      )}
+                    </div>
                     <div>
                       <div className="font-medium">{b.name}</div>
                       <div className="text-[10px] text-slate-500">
