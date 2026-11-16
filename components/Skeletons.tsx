@@ -50,10 +50,6 @@ export function SummaryTotalSkeleton() {
   );
 }
 
-export function BookingsSkeleton() {
-  return <div className={`h-8 w-50 ${BAR}`}></div>;
-}
-
 // Settings Skeleton
 
 function FieldSkeleton() {
@@ -131,6 +127,200 @@ export function SettingsContentSkeleton() {
         <ChangePasswordSkeleton />
         <DangerZoneSkeleton />
       </div>
+    </div>
+  );
+}
+
+/* ----------------------------- Bookings page ----------------------------- */
+
+const COLUMNS = [
+  { key: "guest", label: "w-20", cell: "flex-[2.2]" },
+  { key: "event", label: "w-12", cell: "flex-[2.2]" },
+  { key: "type", label: "w-10", cell: "flex-[1.4]" },
+  { key: "guests", label: "w-12", cell: "flex-[0.8]" },
+  { key: "amount", label: "w-14", cell: "flex-[0.9]" },
+  { key: "date", label: "w-20", cell: "flex-[1.4]" },
+  { key: "status", label: "w-12", cell: "flex-[1.3]" },
+  { key: "actions", label: "w-12", cell: "w-10 shrink-0" },
+];
+
+function FilterSkeleton({ width }: { width: string }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className={`${BAR} h-3 w-14`} />
+      <div className={`${BAR} h-10 rounded-lg ${width}`} />
+    </div>
+  );
+}
+
+function BookingRowSkeleton() {
+  return (
+    <div className="flex items-center gap-4 px-2 py-3">
+      {/* Guest */}
+      <div className={`${COLUMNS[0].cell} flex items-center gap-3`}>
+        <div className={`${PULSE} h-6 w-6 shrink-0 rounded-full`} />
+        <div className="flex flex-col gap-1.5">
+          <div className={`${BAR} h-3.5 w-20`} />
+          <div className={`${BAR} h-2.5 w-32`} />
+        </div>
+      </div>
+      {/* Event */}
+      <div className={COLUMNS[1].cell}>
+        <div className={`${BAR} h-3.5 w-36`} />
+      </div>
+      {/* Type badge */}
+      <div className={COLUMNS[2].cell}>
+        <div className={`${BAR} h-6 w-16 rounded-md`} />
+      </div>
+      {/* Guests */}
+      <div className={COLUMNS[3].cell}>
+        <div className={`${BAR} h-3.5 w-3`} />
+      </div>
+      {/* Amount */}
+      <div className={COLUMNS[4].cell}>
+        <div className={`${BAR} h-3.5 w-10`} />
+      </div>
+      {/* Booking date */}
+      <div className={`${COLUMNS[5].cell} flex flex-col gap-1.5`}>
+        <div className={`${BAR} h-3.5 w-20`} />
+        <div className={`${BAR} h-2.5 w-12`} />
+      </div>
+      {/* Status badge */}
+      <div className={COLUMNS[6].cell}>
+        <div className={`${BAR} h-6 w-20 rounded-md`} />
+      </div>
+      {/* Actions */}
+      <div className={COLUMNS[7].cell}>
+        <div className={`${BAR} h-7 w-7 rounded-md`} />
+      </div>
+    </div>
+  );
+}
+
+function DetailRowSkeleton({ valueWidth }: { valueWidth: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <div className={`${BAR} h-4 w-4`} />
+        <div className={`${BAR} h-3 w-20`} />
+      </div>
+      <div className={`${BAR} h-3 ${valueWidth}`} />
+    </div>
+  );
+}
+
+function BookingDetailsSkeleton() {
+  return (
+    <aside className="w-full shrink-0 rounded-2xl bg-white p-5 lg:w-70">
+      {/* Title + close */}
+      <div className="flex items-center justify-between">
+        <div className={`${BAR} h-5 w-32`} />
+        <div className={`${BAR} h-4 w-4`} />
+      </div>
+
+      {/* Guest */}
+      <div className="mt-5 flex items-center gap-3 border-b border-neutral-100 pb-5">
+        <div className={`${PULSE} h-10 w-10 shrink-0 rounded-full`} />
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <div className={`${BAR} h-4 w-16`} />
+            <div className={`${BAR} h-5 w-16 rounded-md`} />
+          </div>
+          <div className={`${BAR} h-3 w-36`} />
+        </div>
+      </div>
+
+      {/* Booking information */}
+      <div className="mt-5 flex flex-col gap-4">
+        <div className={`${BAR} h-3.5 w-28`} />
+        <DetailRowSkeleton valueWidth="w-24" />
+        <DetailRowSkeleton valueWidth="w-20" />
+        <DetailRowSkeleton valueWidth="w-4" />
+        <DetailRowSkeleton valueWidth="w-8" />
+        <DetailRowSkeleton valueWidth="w-28" />
+        <DetailRowSkeleton valueWidth="w-4" />
+        <div className={`${BAR} h-10 w-full rounded-lg`} />
+      </div>
+
+      {/* Actions */}
+      <div className="mt-5 flex flex-col gap-3 border-t border-neutral-100 pt-5">
+        <div className={`${BAR} h-3.5 w-14`} />
+        <div className={`${BAR} h-9 w-full rounded-lg`} />
+        <div className={`${BAR} h-9 w-full rounded-lg`} />
+        <div className={`${BAR} h-9 w-full rounded-lg`} />
+      </div>
+    </aside>
+  );
+}
+
+type BookingsSkeletonProps = {
+  /** Number of placeholder table rows. */
+  rows?: number;
+  /** Show the right-hand "Booking Details" panel placeholder. */
+  showDetails?: boolean;
+};
+
+export function BookingsSkeleton({
+  rows = 3,
+  showDetails = true,
+}: BookingsSkeletonProps) {
+  return (
+    <div
+      className="flex flex-col gap-5 p-4"
+      role="status"
+      aria-busy="true"
+      aria-label="Loading bookings"
+    >
+      {/* Header + filters */}
+      <section className="rounded-2xl bg-white p-6">
+        <div className={`${BAR} h-8 w-40`} />
+        <div className={`${BAR} mt-3 h-3.5 w-72`} />
+
+        <div className="mt-6 flex flex-wrap items-end gap-4">
+          <div className="flex-1 min-w-60">
+            <div className={`${BAR} h-10 w-full rounded-lg`} />
+          </div>
+          <FilterSkeleton width="w-44" />
+          <FilterSkeleton width="w-36" />
+          <FilterSkeleton width="w-36" />
+          <FilterSkeleton width="w-52" />
+        </div>
+      </section>
+
+      <div className="flex flex-col gap-5 lg:flex-row">
+        {/* Table */}
+        <section className="min-w-0 flex-1 rounded-2xl bg-white p-5">
+          {/* Table header */}
+          <div className="flex items-center gap-4 rounded-lg bg-neutral-100 px-2 py-3">
+            {COLUMNS.map((col) => (
+              <div key={col.key} className={col.cell}>
+                <div className={`${BAR} h-3 ${col.label}`} />
+              </div>
+            ))}
+          </div>
+
+          {/* Rows */}
+          <div className="mt-1 flex flex-col">
+            {Array.from({ length: rows }).map((_, i) => (
+              <BookingRowSkeleton key={i} />
+            ))}
+          </div>
+
+          {/* Footer: count + pagination */}
+          <div className="mt-4 flex items-center justify-between">
+            <div className={`${BAR} h-3 w-36`} />
+            <div className="flex items-center gap-2">
+              <div className={`${BAR} h-7 w-7 rounded-md`} />
+              <div className={`${BAR} h-7 w-7 rounded-md`} />
+              <div className={`${BAR} h-7 w-7 rounded-md`} />
+            </div>
+          </div>
+        </section>
+
+        {showDetails && <BookingDetailsSkeleton />}
+      </div>
+
+      <span className="sr-only">Loading bookings…</span>
     </div>
   );
 }

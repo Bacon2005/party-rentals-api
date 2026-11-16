@@ -34,6 +34,7 @@ export async function getReservations(hostId: string) {
       amount: reservationItem.unitPrice,
       paymentReference: paymentProof.referenceNum,
       screenshotUrl: paymentProof.screenshotUrl,
+      profileUrl: profiles.avatarUrl,
       paymentStatus: paymentProof.status,
       paidAt: paymentProof.paidAt,
     })

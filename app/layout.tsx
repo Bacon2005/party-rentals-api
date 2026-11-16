@@ -3,6 +3,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Party Link",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 export default function RootLayout({
