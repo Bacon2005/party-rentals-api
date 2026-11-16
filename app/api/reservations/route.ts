@@ -15,6 +15,7 @@ import { getProfile } from "@/lib/auth";
 const reservationFiltersSchema = z.object({
   eventId: z.string().uuid().optional(),
   reservationId: z.string().uuid().optional(),
+  scope: z.literal("mine").optional(),
 });
 
 const createReservationSchema = z.object({
@@ -32,6 +33,7 @@ export async function GET(req: Request) {
   const filters = reservationFiltersSchema.safeParse({
     eventId: searchParams.get("eventId") ?? undefined,
     reservationId: searchParams.get("reservationId") ?? undefined,
+    scope: searchParams.get("scope") ?? undefined,
   });
   if (!filters.success) {
     return NextResponse.json(
@@ -48,7 +50,9 @@ export async function GET(req: Request) {
       reservedAt: reservation.reservedAt,
       reservationItemId: reservationItem.reservationItemId,
       itemType: reservationItem.itemType,
-      itemName: sql<string | null>`coalesce(${eventTicket.name}, ${eventTable.label})`,
+      itemName: sql<
+        string | null
+      >`coalesce(${eventTicket.name}, ${eventTable.label})`,
       ticketId: reservationItem.ticketId,
       tableId: reservationItem.tableId,
       unitPrice: reservationItem.unitPrice,
@@ -77,6 +81,9 @@ export async function GET(req: Request) {
         filters.data.reservationId
           ? eq(reservation.reservationId, filters.data.reservationId)
           : undefined,
+        filters.data.scope === "mine"
+          ? eq(reservation.attendeeId, user.id)
+          : or(eq(reservation.attendeeId, user.id), eq(event.hostId, user.id)),
       ),
     );
 

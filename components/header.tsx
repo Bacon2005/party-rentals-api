@@ -4,19 +4,32 @@ import { createClient } from "@/lib/supabase/server";
 import { connection } from "next/server";
 import { verifyUser } from "@/lib/auth";
 import { TopBarSkeleton } from "@/components/Skeletons";
+import Image from "next/image";
 
 async function UserMenu() {
   await connection();
   const supabase = await createClient();
 
   const profile = await verifyUser();
-  const name = profile.name || profile.email;
+  const name = profile.hostName || profile.name;
   const role = profile.role ?? "User";
+  const avatarUrl = profile.avatarUrl;
 
   return (
     <div className="flex items-center gap-3">
-      <div className="grid size-10 place-items-center rounded-full bg-violet-100 font-semibold text-violet-700">
-        {name.charAt(0).toUpperCase()}
+      <div className="grid size-10 place-items-center overflow-hidden rounded-full bg-violet-100 font-semibold text-violet-700">
+        {avatarUrl ? (
+          <Image
+            src={avatarUrl}
+            alt=""
+            width={40}
+            height={40}
+            quality={90}
+            className="size-10 object-cover"
+          />
+        ) : (
+          name.charAt(0).toUpperCase()
+        )}
       </div>
       <div className="text-sm leading-tight">
         <p className="font-semibold">{name}</p>

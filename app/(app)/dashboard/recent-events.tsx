@@ -162,7 +162,13 @@ export async function RecentEvents() {
                       href={`/events/${event.id}`}
                       className="min-w-15 rounded-lg bg-[#F1EAFE] px-5 py-2 text-center text-xs font-medium text-primary hover:bg-[#E6DAFD]"
                     >
-                      View
+                      View Event
+                    </Link>
+                    <Link
+                      href={`/bookings`}
+                      className="min-w-15 rounded-lg bg-[#F1EAFE] px-5 py-2 text-center text-xs font-medium text-primary hover:bg-[#E6DAFD]"
+                    >
+                      View Bookings
                     </Link>
                     <button
                       type="button"
