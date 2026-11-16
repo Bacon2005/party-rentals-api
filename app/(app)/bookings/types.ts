@@ -15,6 +15,7 @@ export interface Booking {
   guests: number;
   amount: number;
   screenshotUrl: string | null;
+  profileUrl: string | null;
   bookingDate: string;
   bookingTime: string;
   status: BookingStatus;
