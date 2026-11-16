@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { getHostEvents } from "@/lib/events";
 import { verifyUser } from "@/lib/auth";
+import { connection } from "next/server";
 
 export default async function EventsPage() {
+  await connection();
   try {
     const profile = await verifyUser();
     const events = await getHostEvents(profile.id);
