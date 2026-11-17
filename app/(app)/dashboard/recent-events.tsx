@@ -87,7 +87,7 @@ export async function RecentEvents() {
   await connection();
   const events = await getRecentEvents();
   return (
-    <section className="w-full min-w-0 rounded-xl border border-border-color bg-background p-5">
+    <section className="w-full min-w-0 rounded-xl border border-border-color bg-cards p-5">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-bold text-foreground">Recent Events</h2>
         <Link

@@ -9,13 +9,12 @@ import {
   CalendarCheck,
   CalendarDays,
   Home,
-  LogOut,
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
 } from "lucide-react";
 import GroupName from "@/components/assets/images/Name.png";
-import { signOut } from "@/app/(app)/actions";
+import { ThemePicker } from "@/components/theme-picker";
 
 const links = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -42,7 +41,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`flex shrink-0 flex-col overflow-hidden bg-[#070720] px-3 py-6 transition-[width] duration-300 ease-out motion-reduce:transition-none ${
+      className={`flex shrink-0 flex-col overflow-hidden bg-sidebar-background px-3 py-6 transition-[width] duration-300 ease-out motion-reduce:transition-none ${
         collapsed ? "w-18" : "w-60"
       }`}
     >
@@ -95,7 +94,7 @@ export function Sidebar() {
               aria-current={active ? "page" : undefined}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 active
-                  ? "bg-violet-600 text-white"
+                  ? "bg-active text-white"
                   : "text-neutral-400 hover:bg-white/5 hover:text-white"
               }`}
             >
@@ -106,15 +105,7 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* <form action={signOut} className="mt-auto border-t border-white/20 pt-4">
-        <button
-          title={collapsed ? "Log Out" : undefined}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-500 hover:cursor-pointer hover:text-red-400"
-        >
-          <LogOut className="size-5 shrink-0" />
-          {label("Log Out")}
-        </button>
-      </form> */}
+      <ThemePicker collapsed={collapsed} />
     </aside>
   );
 }

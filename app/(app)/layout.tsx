@@ -17,7 +17,7 @@ async function RequireUser() {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-dvh overflow-hidden">
+    <div className="flex h-dvh overflow-hidden bg-background">
       <Suspense fallback={null}>
         <RequireUser />
       </Suspense>
@@ -25,7 +25,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar />
 
       {/* min-w-0 lets wide tables shrink instead of pushing the page sideways */}
-      <div className="flex min-w-0 flex-1 flex-col bg-slate-50">
+      <div className="flex min-w-0 flex-1 flex-col bg-background">
         <Header />
         {/* only this area scrolls; the sidebar and header stay put */}
         <main className="flex-1 overflow-y-auto p-6">{children}</main>

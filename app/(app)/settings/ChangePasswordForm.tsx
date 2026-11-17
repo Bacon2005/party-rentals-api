@@ -42,7 +42,7 @@ function PasswordField({
           placeholder={placeholder}
           autoComplete={autoComplete}
           aria-invalid={!!error}
-          className={`${inputClass} pr-10`}
+          className={`${inputClass} bg-cards text-dashboard-text pr-10`}
         />
         <button
           type="button"
