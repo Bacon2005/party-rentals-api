@@ -15,6 +15,8 @@ import {
 import { useEffect, useState, type ReactNode } from "react";
 import type { Booking } from "./types";
 import { StatusBadge } from "./Badges";
+import Image from "next/image";
+import noProfile from "@/components/assets/images/no-profile.jpg";
 
 interface Props {
   booking: Booking;
@@ -81,7 +83,25 @@ export default function BookingDetails({
         </div>
 
         <div className="my-4 flex gap-3 border-b border-slate-200 pb-4 ">
-          <span className="h-10 w-10 shrink-0 rounded-full bg-slate-300" />
+          <div className="h-10 w-10 shrink-0 rounded-full bg-slate-300">
+            {b.profileUrl ? (
+              <Image
+                src={b.profileUrl}
+                width={96}
+                height={96}
+                alt={b.name}
+                className="h-10 w-10 rounded-full object-cover"
+              />
+            ) : (
+              <Image
+                src={noProfile}
+                width={96}
+                height={96}
+                alt={b.name}
+                className="h-10 w-10 rounded-full object-cover"
+              />
+            )}
+          </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-slate-900 ">
