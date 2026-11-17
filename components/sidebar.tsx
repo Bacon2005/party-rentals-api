@@ -106,7 +106,7 @@ export function Sidebar() {
         })}
       </nav>
 
-      <form action={signOut} className="mt-auto border-t border-white/20 pt-4">
+      {/* <form action={signOut} className="mt-auto border-t border-white/20 pt-4">
         <button
           title={collapsed ? "Log Out" : undefined}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-500 hover:cursor-pointer hover:text-red-400"
@@ -114,7 +114,7 @@ export function Sidebar() {
           <LogOut className="size-5 shrink-0" />
           {label("Log Out")}
         </button>
-      </form>
+      </form> */}
     </aside>
   );
 }
