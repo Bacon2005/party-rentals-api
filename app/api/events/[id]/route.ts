@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { and, eq, or } from "drizzle-orm";
 import { db } from "@/db";
 import { event, eventTicket, eventTable } from "@/db/schema";
-import { getProfile, requireApiTier } from "@/lib/auth";
+import { getProfile } from "@/lib/auth";
 import { idSchema, toEventDto, updateEventSchema } from "@/lib/event-dto";
 import { toEventTicketDto } from "@/lib/eventTicket-dto";
 import { toEventTableDto } from "@/lib/eventTable-dto";
@@ -61,9 +61,8 @@ export async function GET(req: Request, ctx: Ctx) {
 
 // PATCH /api/events/:id -> host only, partial update
 export async function PATCH(req: Request, ctx: Ctx) {
-  const gate = await requireApiTier(req, "verified_host");
-  if (gate.response) return gate.response;
-  const user = gate.user;
+  const user = await getProfile(req);
+  if (!user) return unauthorized();
 
   const id = await parseId(ctx);
   if (!id) return notFound();

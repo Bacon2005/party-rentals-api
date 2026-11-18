@@ -3,12 +3,13 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { signUp } from "./actions";
 
+export type SignupState = { message: string; name: string; email: string };
+
 export function SignUpForm() {
   const [state, action, pending] = useActionState(signUp, {
     message: "",
     name: "",
     email: "",
-    dateOfBirth: "",
   });
 
   return (
@@ -17,13 +18,12 @@ export function SignUpForm() {
       <p className="mt-2 text-neutral-500">
         Create your own account to get started.
       </p>
-      <form action={action} className="mt-2 flex w-full flex-col gap-4 sm:w-96">
+      <form action={action} className="mt-2 flex w-96 flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="signup-name" className="font-bold">
+          <label htmlFor="name" className="font-bold">
             Name
           </label>
           <input
-            id="signup-name"
             name="name"
             type="text"
             defaultValue={state.name}
@@ -34,11 +34,10 @@ export function SignUpForm() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="signup-email" className="font-bold">
+          <label htmlFor="email" className="font-bold">
             Email
           </label>
           <input
-            id="signup-email"
             name="email"
             type="email"
             defaultValue={state.email}
@@ -49,71 +48,33 @@ export function SignUpForm() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="dateOfBirth" className="font-bold">
-            Date of birth
-          </label>
-          <input
-            id="dateOfBirth"
-            name="dateOfBirth"
-            type="date"
-            required
-            autoComplete="bday"
-            defaultValue={state.dateOfBirth}
-            className="border px-4 py-2"
-          />
-          <p className="text-sm text-neutral-500">You must be 18 or older.</p>
-        </div>
-        <div className="flex flex-col gap-2">
-          <label htmlFor="signup-password" className="font-bold">
+          <label htmlFor="password" className="font-bold">
             Password
           </label>
           <input
-            id="signup-password"
             name="password"
             type="password"
-            placeholder="Password, 8 or more characters"
-            autoComplete="new-password"
-            minLength={8}
+            placeholder="Password, 6 or more characters"
+            autoComplete="off"
             required
             className="border px-4 py-2"
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="signup-confirm-password" className="font-bold">
+          <label htmlFor="confirmPassword" className="font-bold">
             Confirm Password
           </label>
           <input
-            id="signup-confirm-password"
             name="confirmPassword"
             type="password"
             placeholder="Confirm Password"
-            autoComplete="new-password"
-            minLength={8}
+            autoComplete="off"
             required
             className="border px-4 py-2"
           />
         </div>
-        <label className="flex items-start gap-2 text-sm">
-          <input name="acceptTerms" type="checkbox" required className="mt-1" />
-          <span>
-            I accept the{" "}
-            <Link href="/terms" className="underline">
-              terms
-            </Link>{" "}
-            and{" "}
-            <Link href="/privacy" className="underline">
-              privacy notice
-            </Link>
-            .
-          </span>
-        </label>
-        {state.message && (
-          <p role="alert" className="text-red-700">
-            {state.message}
-          </p>
-        )}
+        {state.message && <p className="text-red-700">{state.message}</p>}
         <button
-          type="submit"
           name="intent"
           value="signup"
           disabled={pending}

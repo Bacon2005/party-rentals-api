@@ -6,7 +6,6 @@ import {
   index,
   integer,
   numeric,
-  pgEnum,
   pgTable,
   text,
   timestamp,
@@ -18,12 +17,6 @@ import {
 // ---------------------------------------------------------------------
 // PROFILES
 // ---------------------------------------------------------------------
-export const verificationTier = pgEnum("verification_tier", [
-  "basic",
-  "verified_guest",
-  "verified_host",
-]);
-
 export const profiles = pgTable(
   "profiles",
   {
@@ -34,37 +27,11 @@ export const profiles = pgTable(
     phone: text("phone"),
     hostName: text("host_name"),
     avatarUrl: text("avatar_url"),
-    dateOfBirth: date("date_of_birth"),
-    tier: verificationTier("tier").notNull().default("basic"),
-    identityStatus: text("identity_status").notNull().default("none"),
-    identityRef: text("identity_ref"),
-    verifiedAt: timestamp("verified_at", { withTimezone: true }),
-    signupConsentVersion: text("signup_consent_version"),
   },
   (table) => [
     uniqueIndex("profiles_one_admin")
       .on(table.role)
       .where(sql`${table.role} = 'admin'`),
-  ],
-).enableRLS();
-
-export const consents = pgTable(
-  "consents",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").notNull(),
-    document: text("document").notNull(),
-    version: text("version").notNull(),
-    acceptedAt: timestamp("accepted_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => [
-    uniqueIndex("consents_user_document_version").on(
-      table.userId,
-      table.document,
-      table.version,
-    ),
   ],
 ).enableRLS();
 

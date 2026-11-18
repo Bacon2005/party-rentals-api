@@ -3,10 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "lint": "node scripts/lint-kyc.mjs",
-    "typecheck": "tsc --noEmit",
-    "test:kyc": "node --test tests/kyc.test.cjs",
-    "test:kyc:http": "node tests/kyc-http.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
@@ -23,7 +19,6 @@
     "react-dom": "19.3.0",
     "recharts": "^3.10.1",
     "resend": "^6.38.1",
-    "stripe": "^23.1.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
