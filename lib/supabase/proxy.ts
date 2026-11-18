@@ -23,11 +23,14 @@ export async function updateSession(request: NextRequest) {
       },
     },
   );
-  const { data } = await supabase.auth.getClaims();
-  if (!data?.claims && request.nextUrl.pathname.startsWith("/customers")) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email_confirmed_at) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    return NextResponse.redirect(url);
+    url.search = "";
+    const redirectResponse = NextResponse.redirect(url);
+    response.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+    return redirectResponse;
   }
   return response;
 }
