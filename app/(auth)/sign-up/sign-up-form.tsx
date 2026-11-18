@@ -3,13 +3,12 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { signUp } from "./actions";
 
-export type SignupState = { message: string; name: string; email: string };
-
 export function SignUpForm() {
   const [state, action, pending] = useActionState(signUp, {
     message: "",
     name: "",
     email: "",
+    dateOfBirth: "",
   });
 
   return (
@@ -24,6 +23,7 @@ export function SignUpForm() {
             Name
           </label>
           <input
+            id="name"
             name="name"
             type="text"
             defaultValue={state.name}
@@ -38,6 +38,7 @@ export function SignUpForm() {
             Email
           </label>
           <input
+            id="email"
             name="email"
             type="email"
             defaultValue={state.email}
@@ -48,14 +49,22 @@ export function SignUpForm() {
           />
         </div>
         <div className="flex flex-col gap-2">
+          <label htmlFor="dateOfBirth" className="font-bold">Date of birth</label>
+          <input id="dateOfBirth" name="dateOfBirth" type="date" required
+            autoComplete="bday" defaultValue={state.dateOfBirth} className="border px-4 py-2" />
+          <p className="text-sm text-neutral-500">You must be 18 or older.</p>
+        </div>
+        <div className="flex flex-col gap-2">
           <label htmlFor="password" className="font-bold">
             Password
           </label>
           <input
+            id="password"
             name="password"
             type="password"
-            placeholder="Password, 6 or more characters"
-            autoComplete="off"
+            placeholder="Password, 8 or more characters"
+            autoComplete="new-password"
+            minLength={8}
             required
             className="border px-4 py-2"
           />
@@ -65,15 +74,22 @@ export function SignUpForm() {
             Confirm Password
           </label>
           <input
+            id="confirmPassword"
             name="confirmPassword"
             type="password"
             placeholder="Confirm Password"
-            autoComplete="off"
+            autoComplete="new-password"
+            minLength={8}
             required
             className="border px-4 py-2"
           />
         </div>
-        {state.message && <p className="text-red-700">{state.message}</p>}
+        <label className="flex items-start gap-2 text-sm">
+          <input name="acceptTerms" type="checkbox" required className="mt-1" />
+          <span>I accept the <Link href="/terms" className="underline">terms</Link> and
+            {" "}<Link href="/privacy" className="underline">privacy notice</Link>.</span>
+        </label>
+        {state.message && <p role="alert" className="text-red-700">{state.message}</p>}
         <button
           name="intent"
           value="signup"
