@@ -10,7 +10,7 @@ import { connection } from "next/server";
 // password, and account-deletion sections in a single dashboard layout.
 export default function SettingsPage() {
   return (
-    <div className="rounded-xl bg-background p-4 sm:p-6">
+    <div className="rounded-xl bg-cards p-4 sm:p-6 border-border-color border shadow-lg">
       <h1 className="text-3xl font-bold text-black">Settings</h1>
       <p className="mt-1 text-sm text-form-button/70">
         Manage your account, event preferences, and platform settings.

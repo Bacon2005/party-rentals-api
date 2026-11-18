@@ -138,7 +138,7 @@ export default function ProfileForm({
                 defaultValue={name}
                 autoComplete="name"
                 aria-invalid={!!errors.name}
-                className={inputClass}
+                className={`${inputClass} bg-cards text-dashboard-text`}
               />
               {errors.name && <p className={errorTextClass}>{errors.name}</p>}
             </div>
@@ -153,7 +153,7 @@ export default function ProfileForm({
                 value={email}
                 readOnly
                 disabled
-                className={`${inputClass} bg-slate-50 text-dashboard-text`}
+                className={`${inputClass} bg-cards text-dashboard-text`}
               />
             </div>
 
@@ -170,7 +170,7 @@ export default function ProfileForm({
                 placeholder="+63 917 123 4567"
                 autoComplete="tel"
                 aria-invalid={!!errors.phone}
-                className={inputClass}
+                className={`${inputClass} bg-cards text-dashboard-text`}
               />
               {errors.phone && <p className={errorTextClass}>{errors.phone}</p>}
             </div>
@@ -185,7 +185,7 @@ export default function ProfileForm({
                 defaultValue={hostName ?? ""}
                 aria-invalid={!!errors.hostName}
                 aria-describedby="hostName-hint"
-                className={inputClass}
+                className={`${inputClass} bg-cards text-dashboard-text`}
               />
               <p
                 id="hostName-hint"

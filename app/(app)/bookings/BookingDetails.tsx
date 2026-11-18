@@ -68,8 +68,8 @@ export default function BookingDetails({
 
   return (
     <>
-      <aside className="rounded-xl bg-white p-5 ">
-        <div className="flex items-center justify-between">
+      <aside className="rounded-xl bg-white p-5 shadow-lg border-border-color border ">
+        <div className="flex items-center justify-between ">
           <h2 className="text-base font-bold text-slate-900">
             Booking Details
           </h2>

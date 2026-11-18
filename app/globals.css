@@ -1,24 +1,93 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme inline {
   --color-background: var(--background);
   --color-dashboard: var(--dashboard);
   --color-dashboard-text: var(--dashboard-text);
   --color-form-button: var(--form-button);
+  --color-active: var(--active);
   --color-border-color: var(--border-color);
+  --color-sidebar-background: var(--sidebar-background);
+  --color-cards: var(--cards);
 }
 
 /* default Theme */
 :root {
-  --background: #ffffff;
+  color-scheme: light;
+  --background: #f4f6fc;
   --dashboard: #080a22;
   --dashboard-text: #716d78;
   --form-button: #6c2cf5;
+  --active: #6c2cf5;
   --border-color: #e1e7f2;
+  --hover: #4b18c8;
+  --highlight: #f02bb8;
+  --divider: #e7e5ec;
+  --sidebar-background: #070720;
+  --cards: #ffffff;
 }
 
-/* :dark {
-  --background: #000000;
-  --dashboard: #1a1c2c;
-  --dashboard-text: #c9c5d0;
-} */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #171a2b;
+  --dashboard: #f1f5f9;
+  --dashboard-text: #a8adc2;
+  --border-color: #34394f;
+  --divider: #34394f;
+}
+
+body {
+  color: var(--dashboard);
+}
+
+/* Adapt existing dashboard surfaces to the selected theme. */
+@layer utilities {
+  [data-theme="dark"] :is(.bg-white, .bg-slate-50, .bg-neutral-50) {
+    background-color: var(--background);
+  }
+  [data-theme="dark"]
+    :is(
+      .bg-slate-100,
+      .bg-neutral-100,
+      .hover\:bg-slate-100:hover,
+      .hover\:bg-neutral-100:hover,
+      .hover\:bg-slate-50:hover
+    ) {
+    background-color: #23283d;
+  }
+  [data-theme="dark"] :is(.bg-slate-200, .bg-neutral-200) {
+    background-color: #34394f;
+  }
+  [data-theme="dark"]
+    :is(
+      .text-slate-900,
+      .text-slate-800,
+      .text-slate-700,
+      .text-neutral-900,
+      .text-neutral-800,
+      .text-neutral-700
+    ) {
+    color: #e2e8f0;
+  }
+  [data-theme="dark"]
+    :is(
+      .text-slate-600,
+      .text-slate-500,
+      .text-neutral-600,
+      .text-neutral-500
+    ) {
+    color: #a8adc2;
+  }
+  [data-theme="dark"]
+    :is(
+      .border-slate-100,
+      .border-slate-200,
+      .border-slate-300,
+      .border-neutral-100,
+      .border-neutral-200
+    ) {
+    border-color: var(--border-color);
+  }
+}
