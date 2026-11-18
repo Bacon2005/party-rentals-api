@@ -48,14 +48,10 @@ export default function BookingFilters({
     onChange({ ...filters, ...patch });
 
   return (
-    <section className="rounded-xl p-5 bg-background border border-border-color">
+    <section className="rounded-xl p-5 bg-cards border border-border-color">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Bookings</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            View and manage all ticket and table reservations across your
-            events.
-          </p>
+          <h1 className="text-3xl font-bold text-slate-900">Search Bookings</h1>
         </div>
         {/* <button
           onClick={onAdd}
