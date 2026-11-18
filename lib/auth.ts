@@ -11,15 +11,11 @@ export type Profile = typeof profiles.$inferSelect;
 export async function getProfile(request?: Request): Promise<Profile | null> {
   const token = request?.headers.get("Authorization")?.replace("Bearer ", "");
   const supabase = await createClient();
-  const { data } = await supabase.auth
-    .getClaims(token)
-    .catch(() => ({ data: null }));
-  if (!data) return null;
-  const { sub: id, email = "", user_metadata } = data.claims;
-  const name = user_metadata?.name ?? "";
-  await db.insert(profiles).values({ id, email, name }).onConflictDoNothing();
-  const [profile] = await db.select().from(profiles).where(eq(profiles.id, id));
-  return profile;
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  if (error || !user?.email_confirmed_at) return null;
+  // Signup's trigger owns profile creation, not mutable user metadata at login.
+  const [profile] = await db.select().from(profiles).where(eq(profiles.id, user.id));
+  return profile ?? null;
 }
 
 export const verifyUser = cache(async () => {
