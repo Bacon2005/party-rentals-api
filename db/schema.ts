@@ -19,7 +19,9 @@ import {
 // PROFILES
 // ---------------------------------------------------------------------
 export const verificationTier = pgEnum("verification_tier", [
-  "basic", "verified_guest", "verified_host",
+  "basic",
+  "verified_guest",
+  "verified_host",
 ]);
 
 export const profiles = pgTable(
@@ -46,14 +48,25 @@ export const profiles = pgTable(
   ],
 ).enableRLS();
 
-export const consents = pgTable("consents", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").notNull(),
-  document: text("document").notNull(),
-  version: text("version").notNull(),
-  acceptedAt: timestamp("accepted_at", { withTimezone: true }).notNull().defaultNow(),
-}, (table) => [uniqueIndex("consents_user_document_version").on(table.userId, table.document, table.version)])
-  .enableRLS();
+export const consents = pgTable(
+  "consents",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull(),
+    document: text("document").notNull(),
+    version: text("version").notNull(),
+    acceptedAt: timestamp("accepted_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("consents_user_document_version").on(
+      table.userId,
+      table.document,
+      table.version,
+    ),
+  ],
+).enableRLS();
 
 // ---------------------------------------------------------------------
 // EVENT

@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/.kyc-check/
 
 # next.js
 /.next/

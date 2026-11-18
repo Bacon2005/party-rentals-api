@@ -119,7 +119,7 @@ export async function POST(req: Request) {
       .where(eq(eventTicket.ticketId, parsed.data.ticketId))
       .limit(1);
 
-    if (!row || row.parentEvent.status !== "published") {
+    if (row?.parentEvent.status !== "published") {
       return {
         status: 404,
         body: { error: "Published ticket not found" },
@@ -132,7 +132,7 @@ export async function POST(req: Request) {
       .where(eq(event.eventId, row.parentEvent.eventId))
       .for("update");
 
-    if (!lockedEvent || lockedEvent.status !== "published") {
+    if (lockedEvent?.status !== "published") {
       return {
         status: 404,
         body: { error: "Published ticket not found" },

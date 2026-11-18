@@ -9,8 +9,13 @@ export function proxy(request: NextRequest) {
 // signed Stripe webhook must be reachable without a browser session.
 export const config = {
   matcher: [
-    "/dashboard/:path*", "/events/:path*", "/bookings/:path*",
-    "/analytics/:path*", "/settings/:path*", "/customers/:path*",
-    "/verify-identity/:path*", "/become-host/:path*",
+    "/dashboard/:path*",
+    "/events/:path*",
+    "/bookings/:path*",
+    "/analytics/:path*",
+    "/settings/:path*",
+    "/customers/:path*",
+    "/verify-identity/:path*",
+    "/become-host/:path*",
   ],
 };

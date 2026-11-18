@@ -35,7 +35,14 @@ export default function AuthLayout({
       </div>
 
       <div className="flex max-w-full flex-row items-center justify-center gap-10 px-2 py-8 md:px-16">
-        <Image src={Logo} alt="" width={500} height={500} loading="eager" className="hidden lg:block" />
+        <Image
+          src={Logo}
+          alt=""
+          width={500}
+          height={500}
+          loading="eager"
+          className="hidden xl:block"
+        />
         <AuthCard />
         {/* pages render nothing; they exist so the routes (and URL) exist */}
         {children}

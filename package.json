@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "lint": "node scripts/lint-kyc.mjs",
+    "typecheck": "tsc --noEmit",
+    "test:kyc": "node --test tests/kyc.test.cjs",
+    "test:kyc:http": "node tests/kyc-http.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start"

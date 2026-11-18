@@ -17,13 +17,13 @@ export function SignUpForm() {
       <p className="mt-2 text-neutral-500">
         Create your own account to get started.
       </p>
-      <form action={action} className="mt-2 flex w-96 flex-col gap-4">
+      <form action={action} className="mt-2 flex w-full flex-col gap-4 sm:w-96">
         <div className="flex flex-col gap-2">
-          <label htmlFor="name" className="font-bold">
+          <label htmlFor="signup-name" className="font-bold">
             Name
           </label>
           <input
-            id="name"
+            id="signup-name"
             name="name"
             type="text"
             defaultValue={state.name}
@@ -34,11 +34,11 @@ export function SignUpForm() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="email" className="font-bold">
+          <label htmlFor="signup-email" className="font-bold">
             Email
           </label>
           <input
-            id="email"
+            id="signup-email"
             name="email"
             type="email"
             defaultValue={state.email}
@@ -49,17 +49,26 @@ export function SignUpForm() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="dateOfBirth" className="font-bold">Date of birth</label>
-          <input id="dateOfBirth" name="dateOfBirth" type="date" required
-            autoComplete="bday" defaultValue={state.dateOfBirth} className="border px-4 py-2" />
+          <label htmlFor="dateOfBirth" className="font-bold">
+            Date of birth
+          </label>
+          <input
+            id="dateOfBirth"
+            name="dateOfBirth"
+            type="date"
+            required
+            autoComplete="bday"
+            defaultValue={state.dateOfBirth}
+            className="border px-4 py-2"
+          />
           <p className="text-sm text-neutral-500">You must be 18 or older.</p>
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="password" className="font-bold">
+          <label htmlFor="signup-password" className="font-bold">
             Password
           </label>
           <input
-            id="password"
+            id="signup-password"
             name="password"
             type="password"
             placeholder="Password, 8 or more characters"
@@ -70,11 +79,11 @@ export function SignUpForm() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="confirmPassword" className="font-bold">
+          <label htmlFor="signup-confirm-password" className="font-bold">
             Confirm Password
           </label>
           <input
-            id="confirmPassword"
+            id="signup-confirm-password"
             name="confirmPassword"
             type="password"
             placeholder="Confirm Password"
@@ -86,11 +95,25 @@ export function SignUpForm() {
         </div>
         <label className="flex items-start gap-2 text-sm">
           <input name="acceptTerms" type="checkbox" required className="mt-1" />
-          <span>I accept the <Link href="/terms" className="underline">terms</Link> and
-            {" "}<Link href="/privacy" className="underline">privacy notice</Link>.</span>
+          <span>
+            I accept the{" "}
+            <Link href="/terms" className="underline">
+              terms
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="underline">
+              privacy notice
+            </Link>
+            .
+          </span>
         </label>
-        {state.message && <p role="alert" className="text-red-700">{state.message}</p>}
+        {state.message && (
+          <p role="alert" className="text-red-700">
+            {state.message}
+          </p>
+        )}
         <button
+          type="submit"
           name="intent"
           value="signup"
           disabled={pending}

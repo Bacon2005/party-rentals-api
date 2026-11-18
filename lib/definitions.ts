@@ -15,9 +15,14 @@ export const SignUpSchema = z
   .object({
     name: z.string().min(1, { error: "Enter your name." }),
     email: z.email({ error: "Enter a valid email." }),
-    dateOfBirth: z.iso.date({ error: "Enter a valid date of birth." })
-      .refine((value) => isAdult(value), { error: "You must be 18 or older to join Party Link." }),
-    acceptTerms: z.literal("on", { error: "Accept the terms and privacy notice to continue." }),
+    dateOfBirth: z.iso
+      .date({ error: "Enter a valid date of birth." })
+      .refine((value) => isAdult(value), {
+        error: "You must be 18 or older to join Party Link.",
+      }),
+    acceptTerms: z.literal("on", {
+      error: "Accept the terms and privacy notice to continue.",
+    }),
     password: z
       .string()
       .min(8, { error: "The password needs at least 8 characters." }),

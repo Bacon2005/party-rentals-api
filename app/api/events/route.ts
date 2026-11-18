@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { asc, eq, and, ne } from "drizzle-orm";
+import { asc, eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { event } from "@/db/schema";
 import { getProfile, requireApiTier } from "@/lib/auth";

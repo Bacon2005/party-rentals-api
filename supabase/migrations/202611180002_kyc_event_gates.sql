@@ -7,39 +7,46 @@ alter table public.event enable row level security;
 alter table public.reservation enable row level security;
 alter table public.reservation_item enable row level security;
 
-create policy kyc_event_create on public.event as restrictive for insert to authenticated
+create policy kyc_event_create on public.event as restrictive for insert to public
 with check (host_id = (select auth.uid()) and exists (
   select 1 from public.profiles p where p.id = (select auth.uid())
     and p.tier = 'verified_host' and p.date_of_birth <= (current_date - interval '18 years')::date
 ));
-create policy kyc_event_update on public.event as restrictive for update to authenticated
+create policy kyc_event_update on public.event as restrictive for update to public
 using (host_id = (select auth.uid()) and exists (
   select 1 from public.profiles p where p.id = (select auth.uid()) and p.tier = 'verified_host'
+    and p.date_of_birth <= (current_date - interval '18 years')::date
 ))
 with check (host_id = (select auth.uid()) and exists (
   select 1 from public.profiles p where p.id = (select auth.uid()) and p.tier = 'verified_host'
+    and p.date_of_birth <= (current_date - interval '18 years')::date
 ));
 
-create policy kyc_reservation_create on public.reservation as restrictive for insert to authenticated
+create policy kyc_reservation_create on public.reservation as restrictive for insert to public
 with check (attendee_id = (select auth.uid()) and exists (
   select 1 from public.profiles p where p.id = (select auth.uid())
     and p.tier in ('verified_guest', 'verified_host')
     and p.date_of_birth <= (current_date - interval '18 years')::date
 ));
-create policy kyc_reservation_update on public.reservation as restrictive for update to authenticated
+create policy kyc_reservation_update on public.reservation as restrictive for update to public
 using (exists (select 1 from public.profiles p where p.id = (select auth.uid())
-  and p.tier in ('verified_guest', 'verified_host')))
+  and p.tier in ('verified_guest', 'verified_host')
+  and p.date_of_birth <= (current_date - interval '18 years')::date))
 with check (exists (select 1 from public.profiles p where p.id = (select auth.uid())
-  and p.tier in ('verified_guest', 'verified_host')));
+  and p.tier in ('verified_guest', 'verified_host')
+  and p.date_of_birth <= (current_date - interval '18 years')::date));
 
-create policy kyc_reservation_item_create on public.reservation_item as restrictive for insert to authenticated
+create policy kyc_reservation_item_create on public.reservation_item as restrictive for insert to public
 with check (exists (select 1 from public.profiles p where p.id = (select auth.uid())
-  and p.tier in ('verified_guest', 'verified_host')));
-create policy kyc_reservation_item_update on public.reservation_item as restrictive for update to authenticated
+  and p.tier in ('verified_guest', 'verified_host')
+  and p.date_of_birth <= (current_date - interval '18 years')::date));
+create policy kyc_reservation_item_update on public.reservation_item as restrictive for update to public
 using (exists (select 1 from public.profiles p where p.id = (select auth.uid())
-  and p.tier in ('verified_guest', 'verified_host')))
+  and p.tier in ('verified_guest', 'verified_host')
+  and p.date_of_birth <= (current_date - interval '18 years')::date))
 with check (exists (select 1 from public.profiles p where p.id = (select auth.uid())
-  and p.tier in ('verified_guest', 'verified_host')));
+  and p.tier in ('verified_guest', 'verified_host')
+  and p.date_of_birth <= (current_date - interval '18 years')::date));
 
 -- No permissive write policies are added: the existing APIs validate ticket
 -- prices, capacity and ownership. Direct browser writes remain denied unless

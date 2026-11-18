@@ -15,12 +15,13 @@ export function LoginForm() {
       <p className="mt-2 text-neutral-500">
         Please log in to your account to continue.
       </p>
-      <form action={action} className="mt-2 flex w-96 flex-col gap-4">
+      <form action={action} className="mt-2 flex w-full flex-col gap-4 sm:w-96">
         <div className="flex flex-col gap-2">
-          <label htmlFor="email" className="font-bold">
+          <label htmlFor="login-email" className="font-bold">
             Email
           </label>
           <input
+            id="login-email"
             name="email"
             type="email"
             defaultValue={state.email}
@@ -30,10 +31,11 @@ export function LoginForm() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="password" className="font-bold">
+          <label htmlFor="login-password" className="font-bold">
             Password
           </label>
           <input
+            id="login-password"
             name="password"
             type="password"
             placeholder="Password, 6 or more characters"
@@ -44,6 +46,7 @@ export function LoginForm() {
 
         {state.message && <p className="text-red-700">{state.message}</p>}
         <button
+          type="submit"
           name="intent"
           value="signin"
           disabled={pending}
