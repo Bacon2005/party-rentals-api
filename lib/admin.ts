@@ -5,9 +5,12 @@ import { createClient } from "@supabase/supabase-js";
 // This bypasses Row Level Security (RLS), so it should only be used on the server in trusted
 // code paths after a user has already been verified.
 export function createAdminClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error("Supabase server credentials are not configured.");
   return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    url,
+    key,
     {
       auth: {
         autoRefreshToken: false,
