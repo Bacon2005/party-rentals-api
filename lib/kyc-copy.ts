@@ -1,0 +1,2 @@
+export const VERIFIED_MEANING = "Verified means a government or student ID was reviewed and age confirmed by our team.";
+export const COLLECTION_NOTICE = "We collect your name, email and date of birth, and ask for a photo of a government or student ID when you verify. We use these to confirm users are real and of legal age. Only the Party Link admin team reviews ID photos. ID photos are deleted right after review. To ask for deletion, contact privacy@example.invalid (project placeholder; contact address to be updated).";

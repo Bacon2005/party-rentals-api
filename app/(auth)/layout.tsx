@@ -22,7 +22,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="relative grid h-dvh place-items-center overflow-hidden p-4">
+    <main className="relative grid min-h-dvh place-items-center overflow-x-hidden p-4">
       <Suspense fallback={null}>
         <RedirectIfLoggedIn />
       </Suspense>
@@ -34,8 +34,15 @@ export default function AuthLayout({
         <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-[#EBD3FB] blur-[110px]" />
       </div>
 
-      <div className="flex flex-row items-center justify-center gap-10 px-16 py-8">
-        <Image src={Logo} alt="" width={500} height={500} loading="eager" />
+      <div className="flex max-w-full flex-row items-center justify-center gap-10 px-2 py-8 md:px-16">
+        <Image
+          src={Logo}
+          alt=""
+          width={500}
+          height={500}
+          loading="eager"
+          className="hidden xl:block"
+        />
         <AuthCard />
         {/* pages render nothing; they exist so the routes (and URL) exist */}
         {children}
