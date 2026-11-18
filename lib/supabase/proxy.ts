@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { createAdminClient } from "@/lib/admin";
 
 export async function updateSession(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -35,6 +36,19 @@ export async function updateSession(request: NextRequest) {
       redirectResponse.cookies.set(cookie);
     });
     return redirectResponse;
+  }
+  // Reject non-admin page requests before streaming starts; the page/actions
+  // independently recheck authorization before reading or signing any image.
+  if (request.nextUrl.pathname === "/admin" || request.nextUrl.pathname.startsWith("/admin/")) {
+    const { data, error } = await createAdminClient().from("profiles").select("is_admin").eq("id",user.id).single();
+    if (error || data?.is_admin !== true) {
+      const destination = request.nextUrl.clone();
+      destination.pathname = "/dashboard";
+      destination.search = "";
+      const denied = NextResponse.redirect(destination);
+      response.cookies.getAll().forEach(cookie => { denied.cookies.set(cookie); });
+      return denied;
+    }
   }
   return response;
 }

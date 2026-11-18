@@ -2,8 +2,16 @@ import Link from "next/link";
 import { getHostEvents } from "@/lib/events";
 import { verifyUser } from "@/lib/auth";
 import { connection } from "next/server";
+import { Suspense } from "react";
 
-export default async function EventsPage() {
+export default function EventsPage() {
+  return (
+    <Suspense fallback={<p>Loading events…</p>}>
+      <EventsContent />
+    </Suspense>
+  );
+}
+async function EventsContent() {
   await connection();
   try {
     const profile = await verifyUser();

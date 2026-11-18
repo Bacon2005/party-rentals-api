@@ -19,7 +19,11 @@ import {
 // ---------------------------------------------------------------------
 // PROFILES
 // ---------------------------------------------------------------------
-export const verificationTier = pgEnum("verification_tier", ["basic", "verified_guest", "verified_host"]);
+export const verificationTier = pgEnum("verification_tier", [
+  "basic",
+  "verified_guest",
+  "verified_host",
+]);
 export const profiles = pgTable(
   "profiles",
   {
@@ -45,26 +49,49 @@ export const profiles = pgTable(
 ).enableRLS();
 
 // Auth foreign keys and security policies are authoritative in the SQL migrations.
-export const consents = pgTable("consents", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").notNull(),
-  document: text("document").notNull(),
-  version: text("version").notNull(),
-  acceptedAt: timestamp("accepted_at", { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [uniqueIndex("consents_user_document_version").on(t.userId,t.document,t.version)]).enableRLS();
+export const consents = pgTable(
+  "consents",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull(),
+    document: text("document").notNull(),
+    version: text("version").notNull(),
+    acceptedAt: timestamp("accepted_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("consents_user_document_version").on(
+      t.userId,
+      t.document,
+      t.version,
+    ),
+  ],
+).enableRLS();
 
-export const idSubmissions = pgTable("id_submissions", {
-  id: uuid("id").primaryKey(),
-  userId: uuid("user_id").notNull(),
-  idType: text("id_type").notNull(),
-  filePath: text("file_path"),
-  status: text("status").notNull().default("pending"),
-  rejectReason: text("reject_reason"),
-  reviewedBy: uuid("reviewed_by"),
-  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  uploadedAt: timestamp("uploaded_at", { withTimezone: true }),
-}, (t) => [uniqueIndex("id_submissions_one_pending").on(t.userId).where(sql`${t.status} = 'pending'`)]).enableRLS();
+export const idSubmissions = pgTable(
+  "id_submissions",
+  {
+    id: uuid("id").primaryKey(),
+    userId: uuid("user_id").notNull(),
+    idType: text("id_type").notNull(),
+    filePath: text("file_path"),
+    status: text("status").notNull().default("pending"),
+    rejectReason: text("reject_reason"),
+    reviewedBy: uuid("reviewed_by"),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    uploadedAt: timestamp("uploaded_at", { withTimezone: true }),
+    cleanupStartedAt: timestamp("cleanup_started_at", { withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex("id_submissions_one_pending")
+      .on(t.userId)
+      .where(sql`${t.status} = 'pending'`),
+  ],
+).enableRLS();
 
 // ---------------------------------------------------------------------
 // EVENT

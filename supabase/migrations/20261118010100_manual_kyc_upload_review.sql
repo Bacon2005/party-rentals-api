@@ -16,14 +16,24 @@ create function public.finish_id_submission(p_id uuid,p_user_id uuid) returns bo
 language plpgsql security definer set search_path=public as $$
 begin
   update public.id_submissions set uploaded_at=coalesce(uploaded_at,now())
-    where id=p_id and user_id=p_user_id and status='pending' and file_path is not null;
+    where id=p_id and user_id=p_user_id and status='pending' and file_path is not null and cleanup_started_at is null;
+  return found;
+end $$;
+-- Claim cleanup before touching Storage, preventing a late upload finalization
+-- from making an image reviewable while it is being discarded.
+create function public.begin_id_upload_cleanup(p_id uuid,p_user_id uuid,p_immediate boolean default false) returns boolean
+language plpgsql security definer set search_path=public as $$
+begin
+  update public.id_submissions set cleanup_started_at=coalesce(cleanup_started_at,now())
+    where id=p_id and user_id=p_user_id and status='pending' and uploaded_at is null
+      and (p_immediate or created_at < now()-interval '10 minutes');
   return found;
 end $$;
 create function public.cancel_id_upload(p_id uuid,p_user_id uuid,p_immediate boolean default false) returns boolean
 language plpgsql security definer set search_path=public as $$
 begin
   perform 1 from public.profiles where id=p_user_id for update;
-  delete from public.id_submissions where id=p_id and user_id=p_user_id and status='pending' and uploaded_at is null
+  delete from public.id_submissions where id=p_id and user_id=p_user_id and status='pending' and uploaded_at is null and cleanup_started_at is not null
     and (p_immediate or created_at < now()-interval '10 minutes');
   if not found then return false; end if;
   update public.profiles set identity_status=case when exists(select 1 from public.id_submissions where user_id=p_user_id and status='rejected') then 'failed' else 'none' end
@@ -53,6 +63,6 @@ begin
   end if;
   return true;
 end $$;
-revoke all on function public.reserve_id_submission(uuid,uuid,text,text),public.finish_id_submission(uuid,uuid),public.cancel_id_upload(uuid,uuid,boolean),public.review_id_submission(uuid,uuid,text,text) from public,anon,authenticated;
-grant execute on function public.reserve_id_submission(uuid,uuid,text,text),public.finish_id_submission(uuid,uuid),public.cancel_id_upload(uuid,uuid,boolean),public.review_id_submission(uuid,uuid,text,text) to service_role;
+revoke all on function public.reserve_id_submission(uuid,uuid,text,text),public.finish_id_submission(uuid,uuid),public.begin_id_upload_cleanup(uuid,uuid,boolean),public.cancel_id_upload(uuid,uuid,boolean),public.review_id_submission(uuid,uuid,text,text) from public,anon,authenticated;
+grant execute on function public.reserve_id_submission(uuid,uuid,text,text),public.finish_id_submission(uuid,uuid),public.begin_id_upload_cleanup(uuid,uuid,boolean),public.cancel_id_upload(uuid,uuid,boolean),public.review_id_submission(uuid,uuid,text,text) to service_role;
 commit;

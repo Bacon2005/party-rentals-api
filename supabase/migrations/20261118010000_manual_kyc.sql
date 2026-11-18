@@ -42,7 +42,8 @@ create table public.id_submissions (
   reviewed_at timestamptz,
   created_at timestamptz not null default now(),
   -- An admin cannot review an upload reservation until Storage upload completes.
-  uploaded_at timestamptz
+  uploaded_at timestamptz,
+  cleanup_started_at timestamptz
 );
 create unique index id_submissions_one_pending on public.id_submissions(user_id) where status='pending';
 create index id_submissions_review_queue on public.id_submissions(status,created_at);
