@@ -10,7 +10,7 @@ import {
   reservation,
   reservationItem,
 } from "@/db/schema";
-import { getProfile } from "@/lib/auth";
+import { getProfile, requireApiTier } from "@/lib/auth";
 
 const reservationFiltersSchema = z.object({
   eventId: z.string().uuid().optional(),
@@ -97,10 +97,9 @@ export async function GET(req: Request) {
 
 // POST /api/reservations -> create one reservation item for a ticket
 export async function POST(req: Request) {
-  const user = await getProfile(req);
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const gate = await requireApiTier(req, "verified_guest");
+  if (gate.response) return gate.response;
+  const user = gate.user;
 
   const parsed = createReservationSchema.safeParse(
     await req.json().catch(() => null),

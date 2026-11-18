@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { asc, eq, and, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { event } from "@/db/schema";
-import { getProfile } from "@/lib/auth";
+import { getProfile, requireApiTier } from "@/lib/auth";
 import { createEventSchema, toEventDto } from "@/lib/event-dto";
 
 // GET /api/events  -> all published events + the caller's own drafts/cancelled
@@ -28,10 +28,9 @@ export async function GET(req: Request) {
 
 // POST /api/events  -> create an event hosted by the caller
 export async function POST(req: Request) {
-  const user = await getProfile(req);
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const gate = await requireApiTier(req, "verified_host");
+  if (gate.response) return gate.response;
+  const user = gate.user;
 
   const parsed = createEventSchema.safeParse(
     await req.json().catch(() => null),
