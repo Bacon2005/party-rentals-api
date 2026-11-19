@@ -10,7 +10,7 @@ import {
   reservation,
   reservationItem,
 } from "@/db/schema";
-import { getProfile } from "@/lib/auth";
+import { getProfile, requireApiTier } from "@/lib/auth";
 
 const reservationFiltersSchema = z.object({
   eventId: z.string().uuid().optional(),
@@ -97,10 +97,9 @@ export async function GET(req: Request) {
 
 // POST /api/reservations -> create one reservation item for a ticket
 export async function POST(req: Request) {
-  const user = await getProfile(req);
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const gate = await requireApiTier(req, "verified_guest");
+  if (gate.response) return gate.response;
+  const user = gate.user;
 
   const parsed = createReservationSchema.safeParse(
     await req.json().catch(() => null),
@@ -120,7 +119,7 @@ export async function POST(req: Request) {
       .where(eq(eventTicket.ticketId, parsed.data.ticketId))
       .limit(1);
 
-    if (!row || row.parentEvent.status !== "published") {
+    if (row?.parentEvent.status !== "published") {
       return {
         status: 404,
         body: { error: "Published ticket not found" },
@@ -133,7 +132,7 @@ export async function POST(req: Request) {
       .where(eq(event.eventId, row.parentEvent.eventId))
       .for("update");
 
-    if (!lockedEvent || lockedEvent.status !== "published") {
+    if (lockedEvent?.status !== "published") {
       return {
         status: 404,
         body: { error: "Published ticket not found" },

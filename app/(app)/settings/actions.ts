@@ -155,6 +155,29 @@ export async function deleteAccount(): Promise<FormState> {
   const profile = await verifyUser();
   const admin = createAdminClient();
 
+  // Delete ID images before the Auth cascade removes their tracking rows.
+  const { data: submissions, error: idReadError } = await admin
+    .from("id_submissions")
+    .select("file_path")
+    .eq("user_id", profile.id)
+    .not("file_path", "is", null)
+    .returns<{ file_path: string }[]>();
+  if (idReadError)
+    return {
+      ok: false,
+      message: "Couldn't check ID image deletion. Please try again.",
+    };
+  if (submissions?.length) {
+    const { error } = await admin.storage
+      .from("id-submissions")
+      .remove(submissions.map((s) => s.file_path));
+    if (error)
+      return {
+        ok: false,
+        message: "ID image deletion failed. Please retry account deletion.",
+      };
+  }
+
   // 1. Remove stored photos
   const { data: files } = await admin.storage
     .from(AVATAR_BUCKET)
