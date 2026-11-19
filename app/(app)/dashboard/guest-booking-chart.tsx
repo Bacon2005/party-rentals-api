@@ -56,9 +56,9 @@ export default function BookingsGuestsChart() {
   }, [range]);
 
   return (
-    <section className="w-full min-w-0 rounded-xl border border-border-color bg-background p-5">
+    <section className="w-full min-w-0 rounded-xl border border-border-color bg-cards p-5">
       {/* Header */}
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4 bg-cards">
         <h2 className="text-xl font-bold text-foreground">
           Bookings &amp; Guests Trend
         </h2>

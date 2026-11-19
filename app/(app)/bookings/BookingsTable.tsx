@@ -1,4 +1,3 @@
-import { MoreHorizontal } from "lucide-react";
 import type { Booking } from "./types";
 import { StatusBadge, TypeBadge } from "./Badges";
 import Image from "next/image";
@@ -12,8 +11,7 @@ interface Props {
 
 const th =
   "bg-slate-100 px-2 py-2.5 text-left text-[11px] font-medium text-slate-500 first:rounded-l-lg last:rounded-r-lg";
-const td =
-  "bg-background-color border-border-color border-slate-100 px-2 py-2.5 text-xs text-slate-900";
+const td = "bg-white border-border-color px-2 py-2.5 text-xs text-slate-900";
 
 const HEADERS = [
   "Guest Name",
@@ -23,7 +21,6 @@ const HEADERS = [
   "Amount",
   "Booking Date",
   "Status",
-  "Actions",
 ];
 
 export default function BookingsTable({
@@ -33,7 +30,7 @@ export default function BookingsTable({
 }: Props) {
   return (
     <div className="overflow-x-auto ">
-      <table className="w-full min-w-160 border-collapse">
+      <table className="bg-white w-full min-w-160 border-collapse">
         <thead>
           <tr>
             {HEADERS.map((h) => (
@@ -107,14 +104,6 @@ export default function BookingsTable({
                 </td>
                 <td className={td}>
                   <StatusBadge status={b.status} />
-                </td>
-                <td className={td} onClick={(e) => e.stopPropagation()}>
-                  <button
-                    aria-label="More actions"
-                    className="grid h-7 w-7 place-items-center rounded-md border border-slate-200 text-slate-700 hover:bg-slate-100 "
-                  >
-                    <MoreHorizontal size={14} />
-                  </button>
                 </td>
               </tr>
             ))

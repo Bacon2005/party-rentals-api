@@ -78,7 +78,7 @@ export default function BookingsPage({ bookings }: { bookings: Booking[] }) {
       <div
         className={`grid items-start gap-4 ${selected ? "lg:grid-cols-[minmax(0,1fr)_300px]" : ""}`}
       >
-        <section className="rounded-xl bg-background-color border border-border-color p-5">
+        <section className="rounded-xl bg-cards border border-border-color p-5">
           <BookingsTable
             bookings={filtered}
             selectedId={selectedId}
