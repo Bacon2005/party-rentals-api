@@ -19,7 +19,7 @@ export default async function Dashboard() {
       </div>
 
       <div className="mt-6 flex flex-col gap-6">
-        <Suspense fallback={null}>
+        <Suspense fallback={<SummaryTotalSkeleton />}>
           <VerificationStatus />
         </Suspense>
         <Suspense fallback={<SummaryTotalSkeleton />}>
