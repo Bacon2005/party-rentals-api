@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { getProfile } from "@/lib/auth";
 import { VERIFIED_MEANING } from "@/lib/kyc-copy";
+import { connection } from "next/server";
 export async function VerificationStatus() {
+  await connection();
   const profile = await getProfile();
   if (!profile) return null;
   return (
-    <div className="space-y-2 rounded-lg border border-border-color p-4 text-sm">
+    <div className="bg-cards space-y-2 rounded-lg border border-border-color p-4 text-sm">
       <p>
         Tier: <strong>{profile.tier.replaceAll("_", " ")}</strong> · ID status:{" "}
         {profile.identityStatus}

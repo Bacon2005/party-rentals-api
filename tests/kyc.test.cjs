@@ -776,19 +776,325 @@ test("admin actions reauthorize, reject invalid decisions, and expose deletion r
   );
 });
 
-test("proxy redirects a confirmed non-admin before streaming even with forged admin metadata",async(t)=>{
-  const {NextRequest}=require("next/server");
-  const names=["NEXT_PUBLIC_SUPABASE_URL","NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"];
-  const previous=names.map(name=>process.env[name]);
-  t.after(()=>names.forEach((name,i)=>{restoreEnv(name,previous[i]);}));
-  process.env.NEXT_PUBLIC_SUPABASE_URL="https://example.invalid";
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="test-publishable";
-  let isAdmin=false;
-  const {updateSession}=loadTs("lib/supabase/proxy.ts",{
-    "@supabase/ssr":{createServerClient:()=>({auth:{getUser:async()=>({data:{user:{id:userId,email_confirmed_at:"confirmed",user_metadata:{is_admin:true}}}})}})},
-    "@/lib/admin":{createAdminClient:()=>({from:()=>({select:()=>({eq:()=>({single:async()=>({data:{is_admin:isAdmin},error:null})})})})})},
+test("proxy redirects a confirmed non-admin before streaming even with forged admin metadata", async (t) => {
+  const { NextRequest } = require("next/server");
+  const names = [
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+  ];
+  const previous = names.map((name) => process.env[name]);
+  t.after(() =>
+    names.forEach((name, i) => {
+      restoreEnv(name, previous[i]);
+    }),
+  );
+  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.invalid";
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-publishable";
+  let isAdmin = false;
+  const { updateSession } = loadTs("lib/supabase/proxy.ts", {
+    "@supabase/ssr": {
+      createServerClient: () => ({
+        auth: {
+          getUser: async () => ({
+            data: {
+              user: {
+                id: userId,
+                email_confirmed_at: "confirmed",
+                user_metadata: { is_admin: true },
+              },
+            },
+          }),
+        },
+      }),
+    },
+    "@/lib/admin": {
+      createAdminClient: () => ({
+        from: () => ({
+          select: () => ({
+            eq: () => ({
+              single: async () => ({
+                data: { is_admin: isAdmin },
+                error: null,
+              }),
+            }),
+          }),
+        }),
+      }),
+    },
   });
-  const denied=await updateSession(new NextRequest("http://localhost/admin/verifications"));
-  assert.equal(denied.status,307);assert.equal(denied.headers.get("location"),"http://localhost/dashboard");
-  isAdmin=true;assert.equal((await updateSession(new NextRequest("http://localhost/admin/verifications"))).status,200);
+  const denied = await updateSession(
+    new NextRequest("http://localhost/admin/verifications"),
+  );
+  assert.equal(denied.status, 307);
+  assert.equal(denied.headers.get("location"), "http://localhost/dashboard");
+  isAdmin = true;
+  assert.equal(
+    (
+      await updateSession(
+        new NextRequest("http://localhost/admin/verifications"),
+      )
+    ).status,
+    200,
+  );
+});
+
+const accountProfile = () => ({
+  id: userId,
+  name: "Party Guest",
+  email: "guest@example.invalid",
+  phone: null,
+  hostName: null,
+  avatarUrl: null,
+  dateOfBirth: "1990-01-02",
+  role: "client",
+  tier: "basic",
+  identityStatus: "none",
+  verifiedAt: null,
+  isAdmin: false,
+  signupConsentVersion: "2026-01",
+});
+
+test("mobile profile and ID endpoints reject anonymous requests before mutations", async () => {
+  const mocks = { "@/lib/auth": { getProfile: async () => null } };
+  const profile = loadTs("app/api/profile/route.ts", {
+    ...mocks,
+    "@/lib/profile-settings": {
+      saveProfile: () => {
+        throw new Error("unexpected write");
+      },
+    },
+  });
+  const verification = loadTs("app/api/verification/route.ts", mocks);
+  for (const handler of [
+    profile.GET,
+    profile.PATCH,
+    verification.GET,
+    verification.POST,
+    verification.DELETE,
+  ]) {
+    const response = await handler(new Request("http://localhost/api/profile"));
+    assert.equal(response.status, 401);
+  }
+});
+
+test("mobile verification status exposes the authenticated profile without private storage paths", async () => {
+  const profile = accountProfile();
+  profile.identityStatus = "pending";
+  const { GET } = loadTs("app/api/verification/route.ts", {
+    "@/lib/auth": {
+      getProfile: async (request) => {
+        assert.equal(
+          request.headers.get("Authorization"),
+          "Bearer mobile-token",
+        );
+        return profile;
+      },
+    },
+    "@/lib/id-storage": {
+      getLatestSubmission: async (id) => {
+        assert.equal(id, userId);
+        return submission();
+      },
+    },
+  });
+  const response = await GET(
+    new Request("http://localhost/api/verification?userId=attacker", {
+      headers: { Authorization: "Bearer mobile-token" },
+    }),
+  );
+  const body = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(body.profile.tier, "basic");
+  assert.equal(body.profile.identity_status, "pending");
+  assert.equal(body.profile.isAdmin, undefined);
+  assert.equal(body.submission.file_path, undefined);
+  assert.equal(body.submission.user_id, undefined);
+});
+
+test("mobile profile edits only write editable fields and normalize PH phone numbers", async () => {
+  let written;
+  const { saveProfile } = loadTs("lib/profile-settings.ts", {
+    "drizzle-orm": { eq: (...args) => args },
+    "@/db/schema": { profiles: { id: "id" } },
+    "@/db": {
+      db: {
+        update: () => ({
+          set: (fields) => ({
+            where: async (condition) => {
+              assert.deepEqual(condition, ["id", userId]);
+              written = fields;
+            },
+          }),
+        }),
+      },
+    },
+  });
+  const result = await saveProfile(
+    accountProfile(),
+    form({
+      name: " New Name ",
+      phone: "0917 123 4567",
+      hostName: " New Host ",
+      tier: "verified_host",
+      identityStatus: "verified",
+      id: "attacker",
+      dateOfBirth: "2000-01-01",
+    }),
+  );
+  assert.equal(result.ok, true);
+  assert.deepEqual(written, {
+    name: "New Name",
+    phone: "+639171234567",
+    hostName: "New Host",
+    avatarUrl: null,
+  });
+  const invalid = await saveProfile(
+    accountProfile(),
+    form({ name: "", phone: "123", hostName: "X".repeat(81) }),
+  );
+  assert.equal(invalid.ok, false);
+  assert.ok(invalid.fieldErrors.name);
+  assert.ok(invalid.fieldErrors.phone);
+  assert.ok(invalid.fieldErrors.hostName);
+  const imageForm = form({ name: "Name" });
+  imageForm.set(
+    "avatar",
+    new File(["renamed text"], "photo.png", { type: "image/png" }),
+  );
+  assert.ok(
+    (await saveProfile(accountProfile(), imageForm)).fieldErrors.avatar,
+  );
+});
+
+test("mobile ID upload delegates to shared validation with the authenticated owner", async () => {
+  let owner;
+  const { POST } = loadTs("app/api/verification/route.ts", {
+    "@/lib/auth": { getProfile: async () => accountProfile() },
+    "@/lib/id-upload": {
+      submitId: async (profile, data) => {
+        owner = profile.id;
+        assert.equal(data.get("idType"), "student");
+        assert.equal(data.get("image").size, png.length);
+        return { ok: true, message: "Under review" };
+      },
+    },
+  });
+  const data = form({ idType: "student", userId: "attacker" });
+  data.set("image", new File([png], "id.png", { type: "image/png" }));
+  assert.equal(
+    (
+      await POST(
+        new Request("http://localhost/api/verification", {
+          method: "POST",
+          body: data,
+        }),
+      )
+    ).status,
+    201,
+  );
+  assert.equal(owner, userId);
+  assert.equal(
+    (
+      await POST(
+        new Request("http://localhost/api/verification", {
+          method: "POST",
+          headers: { "content-length": String(7 * 1024 * 1024) },
+        }),
+      )
+    ).status,
+    413,
+  );
+});
+
+test("mobile interrupted-upload cleanup is scoped to the authenticated owner", async () => {
+  const { DELETE } = loadTs("app/api/verification/route.ts", {
+    "@/lib/auth": { getProfile: async () => accountProfile() },
+    "@/lib/id-storage": {
+      cleanIncompleteUpload: async (id, owner) => {
+        assert.equal(id, submissionId);
+        assert.equal(owner, userId);
+        return false;
+      },
+    },
+  });
+  const response = await DELETE(
+    new Request("http://localhost/api/verification", {
+      method: "DELETE",
+      body: JSON.stringify({ submissionId, userId: "attacker" }),
+    }),
+  );
+  assert.equal(response.status, 409);
+  assert.match((await response.json()).message, /10 minutes/);
+});
+
+test("mobile host promotion requires a verified guest and the current host agreement", async () => {
+  let calls = 0;
+  const { POST } = loadTs("app/api/profile/host/route.ts", {
+    "@/lib/auth": {
+      requireApiTier: async (_request, minimum) => {
+        assert.equal(minimum, "verified_guest");
+        return { user: accountProfile() };
+      },
+    },
+    "@/lib/consents": { HOST_AGREEMENT_VERSION: "2026-01" },
+    "@/lib/admin": {
+      createAdminClient: () => ({
+        rpc: async (name, args) => {
+          calls++;
+          assert.equal(name, "accept_host_agreement");
+          assert.deepEqual(args, { p_user_id: userId, p_version: "2026-01" });
+          return { error: null };
+        },
+      }),
+    },
+  });
+  const request = (body) =>
+    new Request("http://localhost/api/profile/host", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  assert.equal((await POST(request({ agree: false }))).status, 400);
+  assert.equal(calls, 0);
+  assert.equal(
+    (
+      await POST(
+        request({ agree: true, userId: "attacker", version: "forged" }),
+      )
+    ).status,
+    200,
+  );
+  assert.equal(calls, 1);
+});
+
+test("a lost finalization response preserves an ID that was already queued for review", async () => {
+  let reserved;
+  const admin = fakeAdmin(
+    {},
+    {
+      upload: async () => ({ error: null }),
+      remove: async () => {
+        throw new Error("must not delete ready image");
+      },
+    },
+    async (name, args) => {
+      if (name === "reserve_id_submission") {
+        reserved = args.p_id;
+        return { error: null };
+      }
+      return { data: null, error: { message: "lost response" } };
+    },
+  );
+  const { submitId } = loadTs("lib/id-upload.ts", {
+    "@/lib/admin": { createAdminClient: () => admin },
+    "@/lib/id-storage": {
+      ID_BUCKET: "id-submissions",
+      getLatestSubmission: async () => ({
+        id: reserved,
+        uploaded_at: "2026-01-01T00:00:00Z",
+      }),
+    },
+  });
+  const data = form({ idType: "government" });
+  data.set("image", new File([png], "id.png"));
+  assert.equal((await submitId(accountProfile(), data)).ok, true);
 });
