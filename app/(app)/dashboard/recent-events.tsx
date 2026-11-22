@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ArrowRight, MoreHorizontal } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { connection } from "next/server";
+import { verifyUser } from "@/lib/auth";
+import { getEventRevenues } from "@/lib/dashboard";
 
 type EventStatus = "Upcoming" | "Ongoing" | "Completed";
 
@@ -15,6 +17,17 @@ type RecentEvent = {
   revenue: number;
   status: EventStatus;
   imageUrl?: string;
+};
+
+type RecentEventRow = {
+  event_id: string;
+  event_name: string;
+  start_time: string;
+  end_time: string;
+  location: string | null;
+  bookings: number | string;
+  guests: number | string;
+  image_url: string | null;
 };
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
@@ -31,41 +44,38 @@ function getStatus(start: Date, end: Date, now: Date): EventStatus {
 }
 
 async function getRecentEvents(): Promise<RecentEvent[]> {
-  const supabase = await createClient(); // reads cookies, so this is request-time
+  const [profile, supabase] = await Promise.all([verifyUser(), createClient()]);
   const { data, error } = await supabase.rpc("get_recent_events", {
     p_limit: 5,
   });
   if (error) throw new Error(error.message);
 
+  const rows = (data ?? []) as RecentEventRow[];
+  const revenues = await getEventRevenues(
+    profile.id,
+    rows.map((row) => row.event_id),
+  );
+  const revenueByEvent = new Map(
+    revenues.map((row) => [row.eventId, row.total]),
+  );
+
   const now = new Date(); // safe: after the cookies() access above
 
-  return (data ?? []).map(
-    (row: {
-      start_time: string | number | Date;
-      end_time: string | number | Date;
-      event_id: any;
-      event_name: any;
-      location: any;
-      bookings: any;
-      guests: any;
-      total_earned: any;
-      image_url: any;
-    }) => {
-      const start = new Date(row.start_time);
-      const end = new Date(row.end_time);
-      return {
-        id: row.event_id,
-        name: row.event_name,
-        date: dateFmt.format(start),
-        location: row.location ?? "TBA",
-        bookings: Number(row.bookings),
-        guests: Number(row.guests),
-        revenue: row.total_earned,
-        status: getStatus(start, end, now),
-        imageUrl: row.image_url ?? undefined,
-      };
-    },
-  );
+  return rows.map((row) => {
+    const start = new Date(row.start_time);
+    const end = new Date(row.end_time);
+    return {
+      id: row.event_id,
+      name: row.event_name,
+      date: dateFmt.format(start),
+      location: row.location ?? "TBA",
+      bookings: Number(row.bookings),
+      guests: Number(row.guests),
+      revenue: revenueByEvent.get(row.event_id) ?? 0,
+      status: getStatus(start, end, now),
+      imageUrl: row.image_url ?? undefined,
+    };
+  });
 }
 
 const statusStyles: Record<EventStatus, string> = {
@@ -77,7 +87,6 @@ const statusStyles: Record<EventStatus, string> = {
 const peso = new Intl.NumberFormat("en-PH", {
   style: "currency",
   currency: "PHP",
-  maximumFractionDigits: 0,
 });
 
 const th = "px-3 py-3 text-left text-xs font-medium text-[#6B7AA8]";
@@ -132,7 +141,7 @@ export async function RecentEvents() {
                 <td className={td}>
                   <div className="flex items-center gap-3">
                     {event.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
+                      // biome-ignore lint/performance/noImgElement: Keep support for event image URLs outside configured Next Image paths.
                       <img
                         src={event.imageUrl}
                         alt=""

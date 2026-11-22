@@ -63,6 +63,10 @@ export async function decideReservation(
     return { ok: false, error: "This reservation was already decided." };
   }
 
+  // Refresh the dashboard as soon as the booking decision is saved.
+  revalidatePath("/bookings");
+  revalidatePath("/dashboard");
+
   // 3. Notify the guest
   await sendPushToProfile(
     updated.attendeeId,
@@ -71,6 +75,5 @@ export async function decideReservation(
       ? "Your reservation has been confirmed."
       : "Your reservation was not approved.",
   );
-  revalidatePath("/bookings");
   return { ok: true };
 }

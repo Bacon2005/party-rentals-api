@@ -9,7 +9,6 @@ import { getBookingStats } from "@/lib/events";
 const peso = new Intl.NumberFormat("en-PH", {
   style: "currency",
   currency: "PHP",
-  maximumFractionDigits: 0,
 });
 
 export async function SummaryTotal() {
@@ -55,7 +54,7 @@ export async function SummaryTotal() {
 
       <SummaryBox
         title="Total Revenue"
-        stat={revenue ? peso.format(revenue) : peso.format(0)}
+        stat={peso.format(revenue)}
         change={0}
         iconBg="bg-[#FFF0E0]"
         iconColor="text-[#F59E0B]"
