@@ -55,7 +55,7 @@ export async function SummaryTotal() {
 
       <SummaryBox
         title="Total Revenue"
-        stat={peso.format(revenue)}
+        stat={revenue ? peso.format(revenue) : peso.format(0)}
         change={0}
         iconBg="bg-[#FFF0E0]"
         iconColor="text-[#F59E0B]"
