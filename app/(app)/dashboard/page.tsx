@@ -6,6 +6,7 @@ import { VerificationStatus } from "./verification-status";
 import {
   RecentEventSkeleton,
   SummaryTotalSkeleton,
+  VerificationStatusSkeleton
 } from "@/components/Skeletons";
 
 export default async function Dashboard() {
@@ -19,7 +20,7 @@ export default async function Dashboard() {
       </div>
 
       <div className="mt-6 flex flex-col gap-6">
-        <Suspense fallback={<SummaryTotalSkeleton />}>
+        <Suspense fallback={<VerificationStatusSkeleton />}>
           <VerificationStatus />
         </Suspense>
         <Suspense fallback={<SummaryTotalSkeleton />}>
