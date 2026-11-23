@@ -324,3 +324,30 @@ export function BookingsSkeleton({
     </div>
   );
 }
+
+/* -------------------------- Verification status -------------------------- */
+
+export function VerificationStatusSkeleton() {
+  return (
+    <div
+      className="space-y-3"
+      role="status"
+      aria-busy="true"
+      aria-label="Loading verification status"
+    >
+      {/* Tier: basic · ID status: failed */}
+      <div className={`${BAR} h-4 w-56`} />
+
+      {/* Description (2 lines) */}
+      <div className="space-y-2">
+        <div className={`${BAR} h-4 w-full`} />
+        <div className={`${BAR} h-4 w-3/4`} />
+      </div>
+
+      {/* View ID verification link */}
+      <div className={`${BAR} h-4 w-36`} />
+
+      <span className="sr-only">Loading verification status…</span>
+    </div>
+  );
+}
