@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, eq, ne, not, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   reservation,
@@ -9,6 +9,7 @@ import {
   event,
   profiles,
 } from "@/db/schema";
+import { tableHoldExpired } from "@/lib/table-holds";
 
 // Drizzle query joins reservations to guest profiles, reservation items, events,
 // and—when present—payment proofs, tickets, or tables. It filters by event.hostId,
@@ -59,7 +60,11 @@ export async function getReservations(hostId: string) {
         ${eventTable.eventId}
       ) = ${event.eventId}`,
     )
-    .where(eq(event.hostId, hostId));
+    .where(and(
+      eq(event.hostId, hostId),
+      ne(reservation.status, "Cancelled"),
+      not(tableHoldExpired),
+    ));
 
   return result;
 }

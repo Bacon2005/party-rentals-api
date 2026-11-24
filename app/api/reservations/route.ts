@@ -1,4 +1,4 @@
-import { and, count, eq, inArray, or, sql } from "drizzle-orm";
+import { and, count, eq, inArray, not, or, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/db";
@@ -11,6 +11,11 @@ import {
   reservationItem,
 } from "@/db/schema";
 import { getProfile, requireApiTier } from "@/lib/auth";
+import {
+  effectiveReservationStatus,
+  tableHoldExpired,
+  tablePaymentSubmitted,
+} from "@/lib/table-holds";
 
 const reservationFiltersSchema = z.object({
   eventId: z.string().uuid().optional(),
@@ -18,9 +23,10 @@ const reservationFiltersSchema = z.object({
   scope: z.literal("mine").optional(),
 });
 
-const createReservationSchema = z.object({
-  ticketId: z.string().uuid(),
-});
+const createReservationSchema = z.union([
+  z.object({ ticketId: z.string().uuid(), tableId: z.never().optional() }),
+  z.object({ tableId: z.string().uuid(), ticketId: z.never().optional() }),
+]);
 
 // GET /api/reservations?eventId=<uuid>&reservationId=<uuid> (both optional)
 export async function GET(req: Request) {
@@ -46,7 +52,7 @@ export async function GET(req: Request) {
   const rows = await db
     .select({
       reservationId: reservation.reservationId,
-      reservationStatus: reservation.status,
+      reservationStatus: effectiveReservationStatus,
       reservedAt: reservation.reservedAt,
       reservationItemId: reservationItem.reservationItemId,
       itemType: reservationItem.itemType,
@@ -95,7 +101,93 @@ export async function GET(req: Request) {
   });
 }
 
-// POST /api/reservations -> create one reservation item for a ticket
+async function reserveTable(tableId: string, attendeeId: string) {
+  return db.transaction(async (tx) => {
+    const [table] = await tx
+      .select({ price: eventTable.tablePrice, status: eventTable.status })
+      .from(eventTable)
+      .innerJoin(event, eq(event.eventId, eventTable.eventId))
+      .where(and(eq(eventTable.tableId, tableId), eq(event.status, "published")))
+      .for("update", { of: [eventTable, event] });
+
+    if (!table) {
+      return { status: 404, body: { error: "Published table not found" } };
+    }
+
+    const [active] = await tx
+      .select({
+        reservationId: reservation.reservationId,
+        reservationItemId: reservationItem.reservationItemId,
+        attendeeId: reservation.attendeeId,
+        reservationStatus: reservation.status,
+        unitPrice: reservationItem.unitPrice,
+        paymentSubmitted: tablePaymentSubmitted,
+      })
+      .from(reservationItem)
+      .innerJoin(
+        reservation,
+        eq(reservation.reservationId, reservationItem.reservationId),
+      )
+      .where(
+        and(
+          eq(reservationItem.tableId, tableId),
+          inArray(reservation.status, ["Pending", "Confirmed"]),
+          not(tableHoldExpired),
+        ),
+      )
+      .limit(1);
+
+    if (active?.attendeeId === attendeeId) {
+      return {
+        status: 200,
+        body: {
+          data: {
+            reservationId: active.reservationId,
+            reservationItemId: active.reservationItemId,
+            reservationStatus: active.reservationStatus,
+            tableId,
+            paymentRequired: Number(active.unitPrice) > 0,
+            paymentSubmitted: active.paymentSubmitted,
+          },
+        },
+      };
+    }
+
+    if (active || table.status !== "Available") {
+      return { status: 409, body: { error: "This table is already reserved" } };
+    }
+
+    const [created] = await tx
+      .insert(reservation)
+      .values({ attendeeId, status: "Pending", reservedAt: sql`statement_timestamp()` })
+      .returning({ reservationId: reservation.reservationId });
+    const [item] = await tx
+      .insert(reservationItem)
+      .values({
+        reservationId: created.reservationId,
+        tableId,
+        itemType: "table",
+        unitPrice: table.price,
+      })
+      .returning({ reservationItemId: reservationItem.reservationItemId });
+
+    return {
+      status: 201,
+      body: {
+        data: {
+          reservationId: created.reservationId,
+          reservationItemId: item.reservationItemId,
+          reservationStatus: "Pending",
+          tableId,
+          paymentRequired: Number(table.price) > 0,
+          paymentSubmitted: false,
+        },
+      },
+    };
+  });
+}
+
+// POST /api/reservations -> create one reservation item for a ticket or table
 export async function POST(req: Request) {
   const gate = await requireApiTier(req, "verified_guest");
   if (gate.response) return gate.response;
@@ -111,12 +203,18 @@ export async function POST(req: Request) {
     );
   }
 
+  if (parsed.data.tableId !== undefined) {
+    const result = await reserveTable(parsed.data.tableId, user.id);
+    return NextResponse.json(result.body, { status: result.status });
+  }
+
+  const { ticketId } = parsed.data;
   const result = await db.transaction(async (tx) => {
     const [row] = await tx
       .select({ ticket: eventTicket, parentEvent: event })
       .from(eventTicket)
       .innerJoin(event, eq(eventTicket.eventId, event.eventId))
-      .where(eq(eventTicket.ticketId, parsed.data.ticketId))
+      .where(eq(eventTicket.ticketId, ticketId))
       .limit(1);
 
     if (row?.parentEvent.status !== "published") {

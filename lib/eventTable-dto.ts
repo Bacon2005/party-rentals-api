@@ -20,6 +20,7 @@ export type CreateEventTableDto = z.infer<typeof createEventTableSchema>;
 export interface EventTableDto {
   tableId: string;
   eventId: string;
+  label: string;
   lable: string;
   tablePrice: number;
   status: string;
@@ -33,6 +34,7 @@ export function toEventTableDto(
   return {
     tableId: row.tableId,
     eventId: row.eventId,
+    label: row.label,
     lable: row.label,
     tablePrice: Number(row.tablePrice),
     status: row.status,

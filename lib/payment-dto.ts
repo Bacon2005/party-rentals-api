@@ -4,7 +4,7 @@ const PAYMENT_IMAGE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object
 
 export const createPaymentSchema = z.object({
   reservationItemId: z.string().uuid(),
-  referenceNum: z.string().min(1).max(255),
+  referenceNum: z.string().trim().min(1).max(100),
   screenshotUrl: z
     .string()
     .url()

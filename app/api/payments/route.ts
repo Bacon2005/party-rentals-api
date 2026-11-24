@@ -13,6 +13,11 @@ import {
   profiles,
 } from "@/db/schema";
 import { createPaymentSchema } from "@/lib/payment-dto";
+import {
+  effectiveReservationStatus,
+  tableHoldExpired,
+  tablePaymentSubmitted,
+} from "@/lib/table-holds";
 
 // GET /api/payments?eventId=<uuid>&reservationId=<uuid>  (both optional)
 export async function GET(req: Request) {
@@ -44,7 +49,7 @@ export async function GET(req: Request) {
   const rows = await db
     .select({
       reservationId: reservation.reservationId,
-      reservationStatus: reservation.status,
+      reservationStatus: effectiveReservationStatus,
       reservedAt: reservation.reservedAt,
 
       reservationItemId: reservationItem.reservationItemId,
@@ -119,7 +124,12 @@ export async function POST(req: Request) {
 
   // Make sure the item belongs to the caller's own reservation.
   const [owned] = await db
-    .select({ id: reservationItem.reservationItemId })
+    .select({
+      reservationId: reservation.reservationId,
+      itemType: reservationItem.itemType,
+      unitPrice: reservationItem.unitPrice,
+      tableId: reservationItem.tableId,
+    })
     .from(reservationItem)
     .innerJoin(
       reservation,
@@ -140,8 +150,8 @@ export async function POST(req: Request) {
     );
   }
 
-  try {
-    const [created] = await db
+  async function insertProof(writer: Pick<typeof db, "insert">) {
+    const [created] = await writer
       .insert(paymentProof)
       .values({
         reservationItemId: d.reservationItemId,
@@ -152,9 +162,64 @@ export async function POST(req: Request) {
       .returning();
 
     return NextResponse.json({ data: created }, { status: 201 });
-  } catch (err: any) {
-    // Postgres unique violation (reference_num looks unique in your schema)
-    if (err?.code === "23505") {
+  }
+
+  try {
+    if (owned.itemType !== "table") return await insertProof(db);
+
+    return await db.transaction(async (tx) => {
+      // Serialize payment with anyone trying to claim the table at expiry.
+      if (owned.tableId) {
+        await tx
+          .select({ id: eventTable.tableId })
+          .from(eventTable)
+          .where(eq(eventTable.tableId, owned.tableId))
+          .for("update");
+      }
+
+      const [booking] = await tx
+        .select({ status: reservation.status })
+        .from(reservation)
+        .where(and(
+          eq(reservation.reservationId, owned.reservationId),
+          eq(reservation.attendeeId, user.id),
+        ))
+        .for("update");
+
+      if (booking?.status === "Cancelled") {
+        return NextResponse.json(
+          { error: "This table reservation was cancelled." },
+          { status: 409 },
+        );
+      }
+      if (booking?.status !== "Pending" || Number(owned.unitPrice) <= 0) {
+        return NextResponse.json(
+          { error: "This table reservation does not need a payment submission" },
+          { status: 409 },
+        );
+      }
+
+      const [hold] = await tx
+        .select({ paymentSubmitted: tablePaymentSubmitted, expired: tableHoldExpired })
+        .from(reservationItem)
+        .innerJoin(reservation, eq(reservation.reservationId, reservationItem.reservationId))
+        .where(eq(reservationItem.reservationItemId, d.reservationItemId));
+
+      if (hold.paymentSubmitted) {
+        return NextResponse.json(
+          { error: "Payment proof was already submitted for this table" },
+          { status: 409 },
+        );
+      }
+      if (hold.expired) {
+        return NextResponse.json({ error: "This table hold has expired." }, { status: 409 });
+      }
+
+      return insertProof(tx);
+    });
+  } catch (err) {
+    const cause = err instanceof Error ? err.cause ?? err : err;
+    if (typeof cause === "object" && cause !== null && "code" in cause && cause.code === "23505") {
       return NextResponse.json(
         { error: "This reference number was already submitted" },
         { status: 409 },
