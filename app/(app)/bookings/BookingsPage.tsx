@@ -8,7 +8,7 @@ import BookingDetails from "./BookingDetails";
 
 const PAGE_SIZE = 10;
 const pageButton =
-  "rounded-md border border-slate-200 px-2 py-1.5 disabled:opacity-50 dark:border-slate-700";
+  "rounded-md border border-slate-200 px-2 py-1.5 disabled:opacity-50 dark:border-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800";
 
 export default function BookingsPage({ bookings }: { bookings: Booking[] }) {
   const [filters, setFilters] = useState<BookingFilterState>({
@@ -115,7 +115,9 @@ export default function BookingsPage({ bookings }: { bookings: Booking[] }) {
                 >
                   Previous
                 </button>
-                <span>Page {currentPage} of {pageCount}</span>
+                <span>
+                  Page {currentPage} of {pageCount}
+                </span>
                 <button
                   type="button"
                   className={pageButton}
