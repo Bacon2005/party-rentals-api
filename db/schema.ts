@@ -201,7 +201,7 @@ export const reservation = pgTable(
     index("idx_reservation_attendee_id").on(table.attendeeId),
     check(
       "reservation_status_check",
-      sql`${table.status} in ('Pending', 'Confirmed', 'Denied')`,
+      sql`${table.status} in ('Pending', 'Confirmed', 'Denied', 'Cancelled')`,
     ),
   ],
 ).enableRLS();
@@ -241,6 +241,13 @@ export const reservationItem = pgTable(
     ),
   ],
 ).enableRLS();
+
+export const tableReservationGuests = pgTable("table_reservation_guests", {
+  reservationItemId: uuid("reservation_item_id")
+    .primaryKey()
+    .references(() => reservationItem.reservationItemId, { onDelete: "cascade" }),
+  names: text("names").array().notNull(),
+}).enableRLS();
 
 // ---------------------------------------------------------------------
 // PAYMENT PROOF

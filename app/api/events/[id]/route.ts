@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { event, eventTicket, eventTable } from "@/db/schema";
+import {
+  event,
+  eventTable,
+  eventTicket,
+  reservation,
+  reservationItem,
+} from "@/db/schema";
 import { getProfile, requireApiTier } from "@/lib/auth";
 import { idSchema, toEventDto, updateEventSchema } from "@/lib/event-dto";
 import { toEventTicketDto } from "@/lib/eventTicket-dto";
 import { toEventTableDto } from "@/lib/eventTable-dto";
+import { tableHoldExpired } from "@/lib/table-holds";
 
 // Next.js 15: params is a Promise. (On Next 14, use { params }: { params: { id: string } } and drop the await.)
 type Ctx = { params: Promise<{ id: string }> };
@@ -39,6 +46,8 @@ export async function GET(req: Request, ctx: Ctx) {
       ),
     );
 
+  if (!row) return notFound();
+
   const [tickets, tables] = await Promise.all([
     db
       .select()
@@ -46,7 +55,16 @@ export async function GET(req: Request, ctx: Ctx) {
       .where(eq(eventTicket.eventId, id))
       .orderBy(eventTicket.ticketPrice),
     db
-      .select()
+      .select({
+        table: eventTable,
+        held: sql<boolean>`exists (
+          select 1 from ${reservationItem}
+          join ${reservation} on ${reservation}.reservation_id = ${reservationItem}.reservation_id
+          where ${reservationItem}.table_id = ${eventTable}.table_id
+            and ${reservation}.status in ('Pending', 'Confirmed')
+            and not ${tableHoldExpired}
+        )`,
+      })
       .from(eventTable)
       .where(eq(eventTable.eventId, id))
       .orderBy(eventTable.label),
@@ -55,7 +73,9 @@ export async function GET(req: Request, ctx: Ctx) {
   return NextResponse.json({
     ...toEventDto(row),
     tickets: tickets.map(toEventTicketDto),
-    tables: tables.map(toEventTableDto),
+    tables: tables.map(({ table, held }) =>
+      toEventTableDto({ ...table, status: held ? "Reserved" : table.status }),
+    ),
   });
 }
 
