@@ -6,6 +6,10 @@ import BookingFilters from "./BookingsFilters";
 import BookingsTable from "./BookingsTable";
 import BookingDetails from "./BookingDetails";
 
+const PAGE_SIZE = 10;
+const pageButton =
+  "rounded-md border border-slate-200 px-2 py-1.5 disabled:opacity-50 dark:border-slate-700";
+
 export default function BookingsPage({ bookings }: { bookings: Booking[] }) {
   const [filters, setFilters] = useState<BookingFilterState>({
     search: "",
@@ -13,6 +17,7 @@ export default function BookingsPage({ bookings }: { bookings: Booking[] }) {
     type: "",
     status: "",
   });
+  const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState<string | undefined>(
     bookings[0]?.id,
   );
@@ -46,7 +51,11 @@ export default function BookingsPage({ bookings }: { bookings: Booking[] }) {
     );
   }, [bookings, filters]);
 
-  const selected = filtered.find((b) => b.id === selectedId);
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const pageBookings = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+  const selected = pageBookings.find((b) => b.id === selectedId);
 
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +79,10 @@ export default function BookingsPage({ bookings }: { bookings: Booking[] }) {
     <div className="space-y-4">
       <BookingFilters
         filters={filters}
-        onChange={setFilters}
+        onChange={(next) => {
+          setFilters(next);
+          setPage(1);
+        }}
         events={events}
         types={types}
       />
@@ -80,25 +92,40 @@ export default function BookingsPage({ bookings }: { bookings: Booking[] }) {
       >
         <section className="rounded-xl bg-cards border border-border-color p-5">
           <BookingsTable
-            bookings={filtered}
+            bookings={pageBookings}
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
-          <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
-            <span>
-              Showing {filtered.length} of {bookings.length} bookings
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+            <span aria-live="polite">
+              {filtered.length > 0
+                ? `Showing ${pageStart + 1}–${pageStart + pageBookings.length} of ${filtered.length} bookings`
+                : "Showing 0 bookings"}
             </span>
-            <div className="flex gap-1.5">
-              <button className="h-7 w-7 rounded-md border border-slate-200 dark:border-slate-700">
-                ‹
-              </button>
-              <button className="h-7 w-7 rounded-md bg-violet-600 text-white">
-                1
-              </button>
-              <button className="h-7 w-7 rounded-md border border-slate-200 dark:border-slate-700">
-                ›
-              </button>
-            </div>
+            {pageCount > 1 && (
+              <nav
+                aria-label="Bookings pagination"
+                className="flex items-center gap-2"
+              >
+                <button
+                  type="button"
+                  className={pageButton}
+                  disabled={currentPage === 1}
+                  onClick={() => setPage(currentPage - 1)}
+                >
+                  Previous
+                </button>
+                <span>Page {currentPage} of {pageCount}</span>
+                <button
+                  type="button"
+                  className={pageButton}
+                  disabled={currentPage === pageCount}
+                  onClick={() => setPage(currentPage + 1)}
+                >
+                  Next
+                </button>
+              </nav>
+            )}
           </div>
         </section>
 

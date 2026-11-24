@@ -9,7 +9,7 @@ interface Props {
 
 export default function EventThumb({ src, alt, className = "" }: Props) {
   return src ? (
-    <Image
+    <img
       src={src}
       alt={alt}
       width={96}
