@@ -5,6 +5,7 @@ import {
   event,
   eventTable,
   eventTicket,
+  profiles,
   reservation,
   reservationItem,
 } from "@/db/schema";
@@ -37,8 +38,9 @@ export async function GET(req: Request, ctx: Ctx) {
   if (!id) return notFound();
 
   const [row] = await db
-    .select()
+    .select({ event, hostName: profiles.hostName, avatarUrl: profiles.avatarUrl })
     .from(event)
+    .innerJoin(profiles, eq(profiles.id, event.hostId))
     .where(
       and(
         eq(event.eventId, id),
@@ -71,7 +73,12 @@ export async function GET(req: Request, ctx: Ctx) {
   ]);
 
   return NextResponse.json({
-    ...toEventDto(row),
+    ...toEventDto(row.event),
+    hostProfile: {
+      id: row.event.hostId,
+      name: row.hostName?.trim() ?? "",
+      avatarUrl: row.avatarUrl,
+    },
     tickets: tickets.map(toEventTicketDto),
     tables: tables.map(({ table, held }) =>
       toEventTableDto({ ...table, status: held ? "Reserved" : table.status }),

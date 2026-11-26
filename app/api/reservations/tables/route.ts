@@ -40,6 +40,7 @@ export async function GET(req: Request) {
       eventId: event.eventId,
       eventName: event.eventName,
       eventStartTime: event.startTime,
+      eventEndTime: event.endTime,
       tableLabel: eventTable.label,
       capacity: eventTable.capacity,
       unitPrice: reservationItem.unitPrice,
