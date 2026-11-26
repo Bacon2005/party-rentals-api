@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { asc, eq, and } from "drizzle-orm";
+import { and, asc, eq, gt } from "drizzle-orm";
 import { db } from "@/db";
 import { event } from "@/db/schema";
 import { getProfile, requireApiTier } from "@/lib/auth";
 import { createEventSchema, toEventDto } from "@/lib/event-dto";
 
-// GET /api/events  -> all published events + the caller's own drafts/cancelled
+// GET /api/events lists upcoming published events. The mine scope includes all hosted events.
 export async function GET(req: Request) {
   const user = await getProfile(req);
   if (!user)
@@ -16,7 +16,7 @@ export async function GET(req: Request) {
   const where =
     scope === "mine"
       ? eq(event.hostId, user.id) // everything I host, any status
-      : and(eq(event.status, "published"));
+      : and(eq(event.status, "published"), gt(event.startTime, new Date()));
 
   const rows = await db
     .select()
