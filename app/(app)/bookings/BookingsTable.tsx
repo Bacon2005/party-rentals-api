@@ -1,4 +1,5 @@
 import type { Booking } from "./types";
+import { formatBookingGuests } from "./toBookings";
 import { StatusBadge, TypeBadge } from "./Badges";
 import Image from "next/image";
 import noProfile from "@/components/assets/images/no-profile.jpg";
@@ -94,7 +95,7 @@ export default function BookingsTable({
                 <td className={td}>
                   <TypeBadge kind={b.kind} label={b.type} />
                 </td>
-                <td className={td}>{b.guests}</td>
+                <td className={td}>{formatBookingGuests(b)}</td>
                 <td className={td}>₱{b.amount.toLocaleString()}</td>
                 <td className={td}>
                   <div>{b.bookingDate}</div>

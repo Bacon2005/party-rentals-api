@@ -3,7 +3,7 @@ import { ArrowRight, MoreHorizontal } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { connection } from "next/server";
 import { verifyUser } from "@/lib/auth";
-import { getEventRevenues } from "@/lib/dashboard";
+import { getEventBookingTotals } from "@/lib/dashboard";
 
 type EventStatus = "Upcoming" | "Ongoing" | "Completed";
 
@@ -26,7 +26,6 @@ type RecentEventRow = {
   end_time: string;
   location: string | null;
   bookings: number | string;
-  guests: number | string;
   image_url: string | null;
 };
 
@@ -51,27 +50,26 @@ async function getRecentEvents(): Promise<RecentEvent[]> {
   if (error) throw new Error(error.message);
 
   const rows = (data ?? []) as RecentEventRow[];
-  const revenues = await getEventRevenues(
+  const eventTotals = await getEventBookingTotals(
     profile.id,
     rows.map((row) => row.event_id),
   );
-  const revenueByEvent = new Map(
-    revenues.map((row) => [row.eventId, row.total]),
-  );
+  const totalsByEvent = new Map(eventTotals.map((row) => [row.eventId, row]));
 
   const now = new Date(); // safe: after the cookies() access above
 
   return rows.map((row) => {
     const start = new Date(row.start_time);
     const end = new Date(row.end_time);
+    const totals = totalsByEvent.get(row.event_id);
     return {
       id: row.event_id,
       name: row.event_name,
       date: dateFmt.format(start),
       location: row.location ?? "TBA",
       bookings: Number(row.bookings),
-      guests: Number(row.guests),
-      revenue: revenueByEvent.get(row.event_id) ?? 0,
+      guests: totals?.guests ?? 0,
+      revenue: totals?.revenue ?? 0,
       status: getStatus(start, end, now),
       imageUrl: row.image_url ?? undefined,
     };

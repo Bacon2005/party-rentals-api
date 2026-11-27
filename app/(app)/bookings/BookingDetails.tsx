@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import type { Booking } from "./types";
+import { formatBookingGuests } from "./toBookings";
 import { StatusBadge } from "./Badges";
 import Image from "next/image";
 import noProfile from "@/components/assets/images/no-profile.jpg";
@@ -125,7 +126,7 @@ export default function BookingDetails({
         <Row
           icon={<Users size={ic} />}
           label="Number of Guests"
-          value={b.guests}
+          value={formatBookingGuests(b)}
         />
         <Row
           icon={<CreditCard size={ic} />}
@@ -226,7 +227,7 @@ export default function BookingDetails({
                 {b.event} (₱{b.amount})
               </dd>
               <dt className="text-zinc-500">Guests</dt>
-              <dd className="font-medium capitalize">{b.guests}</dd>
+              <dd className="font-medium">{formatBookingGuests(b)}</dd>
               <dt className="text-zinc-500">Status</dt>
               <dd className="font-medium capitalize">{b.status}</dd>
             </dl>

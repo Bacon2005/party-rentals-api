@@ -1,4 +1,4 @@
-import { and, eq, ne, not, sql } from "drizzle-orm";
+import { and, eq, gt, ne, not, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   reservation,
@@ -8,12 +8,11 @@ import {
   eventTable,
   event,
   profiles,
+  tableReservationGuests,
 } from "@/db/schema";
 import { tableHoldExpired } from "@/lib/table-holds";
 
-// Drizzle query joins reservations to guest profiles, reservation items, events,
-// and—when present—payment proofs, tickets, or tables. It filters by event.hostId,
-// so it returns bookings for that host’s events, not every booking in the database.
+// Lists bookings for this host's upcoming events with guest and payment details.
 export async function getReservations(hostId: string) {
   const result = await db
     .select({
@@ -24,6 +23,10 @@ export async function getReservations(hostId: string) {
       bookingDate: reservation.reservedAt,
 
       eventName: event.eventName,
+      tableCapacity: eventTable.capacity,
+      tableGuestCount: sql<number>`
+        coalesce(cardinality(${tableReservationGuests.names}), 0)
+      `.mapWith(Number),
 
       bookingType: sql<string>`
         COALESCE(
@@ -51,6 +54,10 @@ export async function getReservations(hostId: string) {
     )
     .leftJoin(eventTicket, eq(reservationItem.ticketId, eventTicket.ticketId))
     .leftJoin(eventTable, eq(reservationItem.tableId, eventTable.tableId))
+    .leftJoin(
+      tableReservationGuests,
+      eq(tableReservationGuests.reservationItemId, reservationItem.reservationItemId),
+    )
     // The query uses COALESCE to get the booking type from the ticket name or table label,
     // and to find the associated event from the ticket or table.
     .innerJoin(
@@ -62,6 +69,7 @@ export async function getReservations(hostId: string) {
     )
     .where(and(
       eq(event.hostId, hostId),
+      gt(event.startTime, new Date()),
       ne(reservation.status, "Cancelled"),
       not(tableHoldExpired),
     ));

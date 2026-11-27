@@ -13,6 +13,7 @@ export interface Booking {
   type: string;
   kind: BookingKind;
   guests: number;
+  tableCapacity: number | null;
   amount: number;
   screenshotUrl: string | null;
   profileUrl: string | null;
