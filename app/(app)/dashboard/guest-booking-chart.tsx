@@ -23,6 +23,7 @@ export default function BookingsGuestsChart() {
   const [data, setData] = useState<BookingsGuestsDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -53,7 +54,7 @@ export default function BookingsGuestsChart() {
     return () => {
       cancelled = true;
     };
-  }, [range]);
+  }, [range, retryCount]);
 
   return (
     <section className="w-full min-w-0 rounded-xl border border-border-color bg-cards p-5">
@@ -90,7 +91,7 @@ export default function BookingsGuestsChart() {
           >
             <p className="text-sm text-red-500">{error}</p>
             <button
-              onClick={() => setRange(range)}
+              onClick={() => setRetryCount((count) => count + 1)}
               className="text-sm font-medium text-primary underline"
             >
               Retry
@@ -121,10 +122,6 @@ export default function BookingsGuestsChart() {
 
               <YAxis
                 allowDecimals={false}
-                domain={[
-                  0,
-                  (max: number) => Math.max(50, Math.ceil(max / 50) * 50),
-                ]}
                 tick={{ fill: "#71717A", fontSize: 12 }}
                 axisLine={false}
                 tickLine={false}

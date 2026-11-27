@@ -3,7 +3,11 @@ import { SummaryBox } from "./summary-box";
 import { connection } from "next/server";
 
 import { verifyUser } from "@/lib/auth";
-import { getTotalEvents, getTotalRevenue } from "@/lib/dashboard";
+import {
+  getMonthlySummaryChanges,
+  getTotalEvents,
+  getTotalRevenue,
+} from "@/lib/dashboard";
 import { getBookingStats } from "@/lib/events";
 
 const peso = new Intl.NumberFormat("en-PH", {
@@ -15,17 +19,18 @@ export async function SummaryTotal() {
   await connection();
   const profile = await verifyUser();
 
-  const [events, revenue, stats] = await Promise.all([
+  const [events, revenue, stats, change] = await Promise.all([
     getTotalEvents(profile.id),
     getTotalRevenue(profile.id),
     getBookingStats(profile.id),
+    getMonthlySummaryChanges(profile.id),
   ]);
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <SummaryBox
         title="Total Events"
         stat={events}
-        change={0}
+        change={change.events}
         iconBg="bg-[#FFEAF5]"
         iconColor="text-[#FF4DA6]"
       >
@@ -35,7 +40,7 @@ export async function SummaryTotal() {
       <SummaryBox
         title="Total Bookings"
         stat={stats.bookings}
-        change={0}
+        change={change.bookings}
         iconBg="bg-[#EDE3FF]"
         iconColor="text-[#6C2CF5]"
       >
@@ -45,7 +50,7 @@ export async function SummaryTotal() {
       <SummaryBox
         title="Total Guests"
         stat={stats.guests}
-        change={0}
+        change={change.guests}
         iconBg="bg-[#E3F2FF]"
         iconColor="text-[#2F95F5]"
       >
@@ -55,7 +60,7 @@ export async function SummaryTotal() {
       <SummaryBox
         title="Total Revenue"
         stat={peso.format(revenue)}
-        change={0}
+        change={change.revenue}
         iconBg="bg-[#FFF0E0]"
         iconColor="text-[#F59E0B]"
       >

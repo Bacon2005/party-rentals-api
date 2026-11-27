@@ -7,6 +7,7 @@ import {
   eventTicket,
   reservation,
   reservationItem,
+  tableReservationGuests,
 } from "@/db/schema";
 import { toEventDto } from "./event-dto";
 
@@ -14,7 +15,10 @@ export async function getBookingStats(hostId: string) {
   const [result] = await db
     .select({
       bookings: countDistinct(reservation.reservationId),
-      guests: countDistinct(reservation.attendeeId),
+      guests: sql<number>`
+        ${countDistinct(reservation.attendeeId)}
+        + coalesce(sum(cardinality(${tableReservationGuests.names})), 0)
+      `.mapWith(Number),
     })
     .from(reservation)
     .innerJoin(
@@ -23,6 +27,10 @@ export async function getBookingStats(hostId: string) {
     )
     .leftJoin(eventTicket, eq(eventTicket.ticketId, reservationItem.ticketId))
     .leftJoin(eventTable, eq(eventTable.tableId, reservationItem.tableId))
+    .leftJoin(
+      tableReservationGuests,
+      eq(tableReservationGuests.reservationItemId, reservationItem.reservationItemId),
+    )
     .innerJoin(
       event,
       eq(

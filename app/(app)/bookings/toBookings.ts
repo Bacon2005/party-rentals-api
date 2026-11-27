@@ -55,7 +55,8 @@ export function toBookings(rows: Row[]): Booking[] {
       eventTime: "—",
       type,
       kind: toKind(type),
-      guests: 1,
+      guests: Math.max(1, r.tableGuestCount),
+      tableCapacity: r.tableCapacity,
       amount: Number(r.amount ?? 0),
       screenshotUrl: r.screenshotUrl,
       profileUrl: r.profileUrl ?? null,
@@ -65,4 +66,8 @@ export function toBookings(rows: Row[]): Booking[] {
       paymentMethod: "—",
     };
   });
+}
+
+export function formatBookingGuests({ guests, tableCapacity }: Booking) {
+  return tableCapacity === null ? guests : `${guests} of ${tableCapacity}`;
 }
